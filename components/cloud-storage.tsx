@@ -217,7 +217,6 @@ export function CloudStorage() {
           <div className="flex items-center gap-3">
             <span className="hidden lg:block text-sm text-muted-foreground">{userEmail}</span>
             <Button
-              variant="ghost"
               size="icon"
               className="rounded-full flex-shrink-0"
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
