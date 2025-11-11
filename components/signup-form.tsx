@@ -76,7 +76,7 @@ export function SignupForm() {
   }
 
   return (
-    <Card className="border-border/50 shadow-lg">
+    <Card className="border-border shadow-lg">
       <CardContent className="pt-8 px-6 md:px-8 pb-8">
         <form onSubmit={isEmailSent ? handleSignup : handleSendVerification}>
           <div className="space-y-6">
