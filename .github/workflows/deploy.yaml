@@ -1,0 +1,40 @@
+name: 홈 서버에 빌드 및 배포
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: sshpass 설치
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
+      - name: SSH를 통한 서버 배포
+        run: |
+          sshpass -p "${{ secrets.PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.USERNAME }}@${{ secrets.HOST }} << 'EOF'
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+            export PATH="$PATH:$HOME/.nvm/versions/node/$(ls $NVM_DIR/versions/node | tail -n 1)/bin"
+
+            cd ~/joondrive-fe
+            git pull origin main
+
+            echo "의존성 설치 중..."
+            npm install --legacy-peer-deps
+
+            echo "프로젝트 빌드 중..."
+            npm run build
+
+            echo "PM2 재시작 중..."
+            pm2 restart all || pm2 start npm --name "joondrive-fe" -- start
+
+            echo "배포 완료!"
+          EOF
