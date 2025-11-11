@@ -201,13 +201,13 @@ export function CloudStorage() {
       <header className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
           <div className="flex items-center gap-3 md:gap-4 flex-1 max-w-2xl min-w-0">
-            <h1 className="text-xl font-semibold text-foreground hidden md:block whitespace-nowrap">Joon Drive</h1>
+            <h1 className="text-xl font-semibold text-foreground hidden md:block whitespace-nowrap">Cloud Storage</h1>
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
                 type="search"
                 placeholder="파일 검색..."
-                className="pl-10 bg-background border-border w-full"
+                className="pl-10 bg-input border-border focus:ring-primary h-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -217,6 +217,7 @@ export function CloudStorage() {
           <div className="flex items-center gap-3">
             <span className="hidden lg:block text-sm text-muted-foreground">{userEmail}</span>
             <Button
+              variant="ghost"
               size="icon"
               className="rounded-full flex-shrink-0"
               onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
@@ -236,14 +237,14 @@ export function CloudStorage() {
                 </div>
                 <Link
                   href="/account-settings"
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent text-left transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 text-left transition-colors"
                   onClick={() => setIsUserMenuOpen(false)}
                 >
                   <Settings className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm text-foreground">계정 설정</span>
                 </Link>
                 <button
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-accent text-left transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-muted/50 text-left transition-colors"
                   onClick={() => {
                     setIsUserMenuOpen(false)
                     handleLogout()
@@ -286,7 +287,7 @@ export function CloudStorage() {
         </div>
 
         <div className="mb-5 md:mb-6 flex flex-wrap items-center gap-2 md:gap-3">
-          <Button onClick={handleUpload} className="gap-2">
+          <Button onClick={handleUpload} className="gap-2 bg-primary hover:bg-accent text-primary-foreground">
             <Upload className="h-4 w-4" />
             <span className="hidden sm:inline">업로드</span>
           </Button>
@@ -294,7 +295,7 @@ export function CloudStorage() {
             variant="outline"
             onClick={handleDownload}
             disabled={selectedItems.length === 0}
-            className="gap-2 bg-transparent"
+            className="gap-2 border-border hover:bg-secondary bg-transparent"
           >
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">다운로드</span>
@@ -303,7 +304,7 @@ export function CloudStorage() {
             variant="outline"
             onClick={handleDelete}
             disabled={selectedItems.length === 0}
-            className="gap-2 hover:bg-destructive hover:text-destructive-foreground bg-transparent"
+            className="gap-2 border-border hover:bg-destructive hover:text-destructive-foreground bg-transparent"
           >
             <Trash2 className="h-4 w-4" />
             <span className="hidden sm:inline">삭제</span>
@@ -336,8 +337,8 @@ export function CloudStorage() {
               currentFiles.map((file) => (
                 <div
                   key={file.id}
-                  className={`px-4 md:px-6 py-4 hover:bg-accent/50 transition-colors ${
-                    selectedItems.includes(file.id) ? "bg-accent/30" : ""
+                  className={`px-4 md:px-6 py-4 hover:bg-muted/30 transition-colors ${
+                    selectedItems.includes(file.id) ? "bg-muted/50" : ""
                   }`}
                 >
                   <div className="md:hidden flex items-start gap-3">

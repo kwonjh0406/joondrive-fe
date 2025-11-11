@@ -93,7 +93,7 @@ export function SignupForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isEmailSent}
-                  className="pl-10 h-11"
+                  className="pl-10 bg-input border-border focus:ring-primary h-11"
                   required
                 />
               </div>
@@ -112,7 +112,7 @@ export function SignupForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isEmailSent}
-                  className="pl-10 h-11"
+                  className="pl-10 bg-input border-border focus:ring-primary h-11"
                   required
                 />
               </div>
@@ -131,7 +131,7 @@ export function SignupForm() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   disabled={isEmailSent}
-                  className="pl-10 h-11"
+                  className="pl-10 bg-input border-border focus:ring-primary h-11"
                   required
                 />
               </div>
@@ -175,7 +175,7 @@ export function SignupForm() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground h-12 animate-in fade-in slide-in-from-bottom-2 duration-500"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 mt-2"
                   disabled={isLoading}
                 >
                   {isLoading ? (

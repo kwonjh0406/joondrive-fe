@@ -10,14 +10,15 @@
   --card-foreground: oklch(0.25 0.02 264);
   --popover: hsl(0 0% 100%);
   --popover-foreground: oklch(0.25 0.02 264);
+  /* primary를 더 진한 파란색으로 변경하여 배경과 대비 강화 */
   --primary: hsl(142.1 76.2% 36.3%);
-  --primary-foreground: oklch(0.99 0 0);
+  --primary-foreground: hsl(0 0% 100%);
   --secondary: hsl(240 4.8% 95.9%);
   --secondary-foreground: oklch(0.25 0.02 264);
   --muted: hsl(240 4.8% 95.9%);
   --muted-foreground: oklch(0.55 0.01 264);
-  --accent: hsl(240 4.8% 95.9%);
-  --accent-foreground: oklch(0.99 0 0);
+  /* accent를 primary보다 더 어두운 초록색으로 변경하여 hover 시 흰색 글자가 잘 보이도록 설정 */
+  --accent: hsl(142.1 76.2% 30%);
   --destructive: hsl(0 84.2% 60.2%);
   --destructive-foreground: oklch(0.99 0 0);
   --border: hsl(240 5.9% 90%);
@@ -28,7 +29,7 @@
   --chart-3: hsl(134 61% 41%);
   --chart-4: hsl(120 100% 25%);
   --chart-5: hsl(103 43% 50%);
-  --radius: 12px;
+  --radius: 0.75rem;
   --sidebar: hsl(0 0% 98%);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -46,19 +47,21 @@
   --card-foreground: oklch(0.95 0.005 264);
   --popover: rgb(2, 8, 23);
   --popover-foreground: oklch(0.95 0.005 264);
-  --primary: rgb(248, 250, 252);
-  --primary-foreground: oklch(0.99 0 0);
+  /* 다크 모드에서 primary를 더 밝은 파란색으로 변경 */
+  --primary: hsl(217 91% 65%);
+  --primary-foreground: hsl(222.2 47.4% 11.2%);
   --secondary: rgb(30, 41, 59);
   --secondary-foreground: oklch(0.95 0.005 264);
   --muted: rgb(30, 41, 59);
   --muted-foreground: oklch(0.65 0.01 264);
-  --accent: rgb(30, 41, 59);
-  --accent-foreground: oklch(0.99 0 0);
-  --destructive: rgb(127, 29, 29);
+  /* 다크 모드 accent를 더 밝게 하여 hover 시 대비 강화 */
+  --accent: hsl(217 91% 72%);
+  --accent-foreground: hsl(222.2 47.4% 11.2%);
+  --destructive: rgb(220, 38, 38);
   --destructive-foreground: oklch(0.99 0 0);
   --border: rgb(30, 41, 59);
   --input: rgb(30, 41, 59);
-  --ring: rgb(203, 213, 225);
+  --ring: hsl(217 91% 65%);
   --chart-1: rgb(38, 98, 217);
   --chart-2: rgb(46, 184, 138);
   --chart-3: rgb(232, 140, 48);

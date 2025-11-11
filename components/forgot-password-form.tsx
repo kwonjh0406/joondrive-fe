@@ -87,7 +87,7 @@ export function ForgotPasswordForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isEmailSent}
-                  className="pl-10 h-11"
+                  className="pl-10 bg-input border-border focus:ring-primary h-11"
                   required
                 />
               </div>
@@ -106,7 +106,7 @@ export function ForgotPasswordForm() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   disabled={isEmailSent}
-                  className="pl-10 h-11"
+                  className="pl-10 bg-input border-border focus:ring-primary h-11"
                   required
                 />
               </div>
@@ -125,7 +125,7 @@ export function ForgotPasswordForm() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   disabled={isEmailSent}
-                  className="pl-10 h-11"
+                  className="pl-10 bg-input border-border focus:ring-primary h-11"
                   required
                 />
               </div>
@@ -169,7 +169,7 @@ export function ForgotPasswordForm() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground h-12 animate-in fade-in slide-in-from-bottom-2 duration-500"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 mt-2"
                   disabled={isLoading}
                 >
                   {isLoading ? (

@@ -6,6 +6,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
 import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -67,23 +68,23 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <div className="w-full max-w-md">
-      <div className="rounded-2xl border border-border bg-card p-8 shadow-xl">
-        <div className="mb-8">
+    <Card className="border-border shadow-lg">
+      <CardContent className="pt-6 md:pt-8 px-6 md:px-8 pb-8">
+        <div className="mb-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-4"
           >
             <ArrowLeft className="h-4 w-4" />
             뒤로 가기
           </Link>
-          <h1 className="text-3xl font-bold text-foreground mb-2">비밀번호 변경</h1>
-          <p className="text-muted-foreground">새로운 비밀번호로 변경하세요</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">비밀번호 변경</h1>
+          <p className="text-sm text-muted-foreground">새로운 비밀번호로 변경하세요</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword" className="text-foreground">
+            <Label htmlFor="currentPassword" className="text-sm font-medium text-foreground">
               현재 비밀번호
             </Label>
             <div className="relative">
@@ -97,8 +98,11 @@ export function ChangePasswordForm() {
                     setErrors({ ...errors, currentPassword: "" })
                   }
                 }}
-                className={`pr-10 bg-background border-border ${errors.currentPassword ? "border-destructive" : ""}`}
+                className={`pr-10 bg-input border-border focus:ring-primary h-11 ${
+                  errors.currentPassword ? "border-destructive" : ""
+                }`}
                 placeholder="현재 비밀번호 입력"
+                autoComplete="current-password"
               />
               <button
                 type="button"
@@ -112,7 +116,7 @@ export function ChangePasswordForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="newPassword" className="text-foreground">
+            <Label htmlFor="newPassword" className="text-sm font-medium text-foreground">
               새 비밀번호
             </Label>
             <div className="relative">
@@ -126,8 +130,11 @@ export function ChangePasswordForm() {
                     setErrors({ ...errors, newPassword: "" })
                   }
                 }}
-                className={`pr-10 bg-background border-border ${errors.newPassword ? "border-destructive" : ""}`}
+                className={`pr-10 bg-input border-border focus:ring-primary h-11 ${
+                  errors.newPassword ? "border-destructive" : ""
+                }`}
                 placeholder="새 비밀번호 입력 (8자 이상)"
+                autoComplete="new-password"
               />
               <button
                 type="button"
@@ -141,7 +148,7 @@ export function ChangePasswordForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-foreground">
+            <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
               새 비밀번호 재입력
             </Label>
             <div className="relative">
@@ -155,8 +162,11 @@ export function ChangePasswordForm() {
                     setErrors({ ...errors, confirmPassword: "" })
                   }
                 }}
-                className={`pr-10 bg-background border-border ${errors.confirmPassword ? "border-destructive" : ""}`}
+                className={`pr-10 bg-input border-border focus:ring-primary h-11 ${
+                  errors.confirmPassword ? "border-destructive" : ""
+                }`}
                 placeholder="새 비밀번호 재입력"
+                autoComplete="new-password"
               />
               <button
                 type="button"
@@ -169,11 +179,14 @@ export function ChangePasswordForm() {
             {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
           </div>
 
-          <Button type="submit" className="w-full h-12 text-base font-medium">
+          <Button
+            type="submit"
+            className="w-full bg-primary hover:bg-accent text-primary-foreground font-medium h-12 transition-all mt-2"
+          >
             비밀번호 변경
           </Button>
         </form>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   )
 }
