@@ -201,7 +201,7 @@ export function CloudStorage() {
       <header className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
           <div className="flex items-center gap-3 md:gap-4 flex-1 max-w-2xl min-w-0">
-            <h1 className="text-xl font-semibold text-foreground hidden md:block whitespace-nowrap">Cloud Storage</h1>
+            <h1 className="text-xl font-bold text-foreground hidden md:block whitespace-nowrap">Joon Drive</h1>
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input

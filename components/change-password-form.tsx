@@ -181,7 +181,7 @@ export function ChangePasswordForm() {
 
           <Button
             type="submit"
-            className="w-full bg-primary hover:bg-accent text-primary-foreground font-medium h-12 transition-all mt-2"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 mt-2"
           >
             비밀번호 변경
           </Button>
