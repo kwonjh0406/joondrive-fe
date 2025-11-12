@@ -3,12 +3,15 @@
 import type React from "react"
 
 import { useState } from "react"
+import axios from "axios"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent } from "@/components/ui/card"
 import { Mail, Lock, CheckCircle2, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export function SignupForm() {
   const [email, setEmail] = useState("")
@@ -22,7 +25,6 @@ export function SignupForm() {
   const handleSendVerification = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // 유효성 검사
     if (!email || !password || !confirmPassword) {
       toast.error("모든 필드를 입력해주세요.")
       return
@@ -40,12 +42,22 @@ export function SignupForm() {
 
     setIsLoading(true)
 
-    // 이메일 인증번호 발송 시뮬레이션
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      await axios.post(`${API_URL}/api/send-code`, { email }, {
+        withCredentials: true,
+      })
 
-    setIsLoading(false)
-    setIsEmailSent(true)
-    toast.success("이메일로 인증번호가 발송되었습니다.")
+      setIsEmailSent(true)
+      toast.success("이메일로 인증번호가 발송되었습니다.")
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data || "인증번호 발송에 실패했습니다.")
+      } else {
+        toast.error("인증번호 발송에 실패했습니다.")
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   // 가입 완료
@@ -59,20 +71,27 @@ export function SignupForm() {
 
     setIsLoading(true)
 
-    // 회원가입 처리 시뮬레이션
-    await new Promise((resolve) => setTimeout(resolve, 1500))
+    try {
+      await axios.post(
+        `${API_URL}/api/signup`,
+        { email, password, code: verificationCode },
+        { withCredentials: true }
+      )
 
-    setIsLoading(false)
-    toast.success("회원가입이 완료되었습니다! 🎉")
+      toast.success("회원가입이 완료되었습니다! 🎉")
 
-    // 폼 초기화
-    setTimeout(() => {
-      setEmail("")
-      setPassword("")
-      setConfirmPassword("")
-      setVerificationCode("")
-      setIsEmailSent(false)
-    }, 2000)
+      setTimeout(() => {
+        window.location.href = "/login"
+      }, 1500)
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data || "회원가입에 실패했습니다.")
+      } else {
+        toast.error("회원가입에 실패했습니다.")
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
