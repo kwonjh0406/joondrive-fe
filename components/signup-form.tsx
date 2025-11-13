@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function SignupForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -111,13 +113,8 @@ export function SignupForm() {
       toast.success("회원가입이 완료되었습니다! 🎉");
 
       setTimeout(() => {
-        setEmail("");
-        setPassword("");
-        setConfirmPassword("");
-        setVerificationCode("");
-        setIsEmailSent(false);
-        setTimeLeft(0);
-      }, 2000);
+        router.push("/login");
+      }, 1500);
     } catch (err: any) {
       console.error(err);
       toast.error(err.response?.data || "회원가입에 실패했습니다.");
