@@ -12,13 +12,10 @@ export async function middleware(req: NextRequest) {
 
   try {
     const verifyUrl = `${API_URL.replace(/\/$/, "")}/auth/verify`
-    const verifyRes = await fetch(verifyUrl, {
-      headers: {
-        Cookie: `JSESSIONID=${sessionId}`,
-      },
-      credentials: "include",
-      cache: "no-store",
-    })
+    const verifyRes = await fetch(`${req.nextUrl.origin}/api/verify`, {
+  cache: "no-store",
+})
+
 
     if (!verifyRes.ok) {
       return NextResponse.redirect(new URL("/login", req.url))
