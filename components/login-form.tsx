@@ -1,46 +1,49 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { toast } from "sonner"
-import Link from "next/link"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { toast } from "sonner";
+import Link from "next/link";
 
 export function LoginForm() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!email || !password) {
-      toast.error("이메일과 비밀번호를 입력해주세요.")
-      return
+      toast.error("이메일과 비밀번호를 입력해주세요.");
+      return;
     }
 
-    setIsLoading(true)
+    setIsLoading(true);
 
     // 로그인 로직 시뮬레이션
     setTimeout(() => {
-      toast.success("환영합니다!")
-      setIsLoading(false)
+      toast.success("환영합니다!");
+      setIsLoading(false);
       // 여기에 실제 로그인 처리 로직 추가
-    }, 1500)
-  }
+    }, 1500);
+  };
 
   return (
     <Card className="border-border shadow-lg">
       <form onSubmit={handleSubmit}>
         <CardContent className="pt-8 px-6 md:px-8 space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor="email"
+              className="text-sm font-medium text-foreground"
+            >
               이메일
             </Label>
             <Input
@@ -55,7 +58,10 @@ export function LoginForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor="password"
+              className="text-sm font-medium text-foreground"
+            >
               비밀번호
             </Label>
             <Input
@@ -77,12 +83,18 @@ export function LoginForm() {
                 onCheckedChange={(checked) => setRememberMe(checked as boolean)}
                 className="border-border data-[state=checked]:bg-primary"
               />
-              <Label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer select-none">
+              <Label
+                htmlFor="remember"
+                className="text-sm text-muted-foreground cursor-pointer select-none"
+              >
                 자동 로그인
               </Label>
             </div>
 
-            <Link href="/forgot-password" className="text-sm text-primary hover:text-accent transition-colors">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-primary hover:text-accent transition-colors"
+            >
               비밀번호 찾기
             </Link>
           </div>
@@ -118,5 +130,5 @@ export function LoginForm() {
         </CardFooter>
       </form>
     </Card>
-  )
+  );
 }

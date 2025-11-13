@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: hsl(0 0% 100%);
+  --background: hsl(0 0% 99%);
   --foreground: hsl(240 10% 3.9%);
   --card: hsl(0 0% 100%);
   --card-foreground: oklch(0.25 0.02 264);
@@ -22,7 +22,7 @@
   --destructive: hsl(0 84.2% 60.2%);
   --destructive-foreground: oklch(0.99 0 0);
   --border: hsl(240 5.9% 90%);
-  --input: hsl(240 5.9% 90%);
+  --input: hsl(0, 0%, 95%);
   --ring: hsl(142.1 76.2% 36.3%);
   --chart-1: hsl(142.1 76.2% 36.3%);
   --chart-2: hsl(159 84% 45%);

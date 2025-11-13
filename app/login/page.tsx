@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/login-form"
+import { LoginForm } from "@/components/login-form";
 
 export default function LoginPage() {
   return (
@@ -6,10 +6,12 @@ export default function LoginPage() {
       <div className="w-full max-w-md md:mt-0 mt-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">로그인</h1>
-          <p className="text-muted-foreground">계정에 로그인하세요</p>
+          <p className="text-muted-foreground">
+            언제 어디서나 파일을 관리하세요
+          </p>
         </div>
         <LoginForm />
       </div>
     </div>
-  )
+  );
 }
