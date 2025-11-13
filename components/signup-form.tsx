@@ -72,7 +72,15 @@ export function SignupForm() {
       toast.success("이메일로 인증번호가 발송되었습니다.");
     } catch (err: any) {
       console.error(err);
-      toast.error(err.response?.data?.message || "이메일 발송에 실패했습니다.");
+      const status = err?.response?.status;
+      if (status === 409) {
+        // 이미 가입된 이메일인 경우 사용자에게 알려줌
+        toast.error("이미 가입된 이메일입니다.");
+      } else {
+        toast.error(
+          err?.response?.data?.message || "이메일 발송에 실패했습니다."
+        );
+      }
     } finally {
       setIsLoading(false);
     }
