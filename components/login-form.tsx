@@ -33,16 +33,21 @@ export function LoginForm() {
       const formData = new URLSearchParams();
       formData.append("email", email);
       formData.append("password", password);
-      formData.append("rememberMe", rememberMe ? "true" : "false");
+      if (rememberMe) {
+        formData.append("remember-me", "on");
+      }
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        credentials: "include", // ✅ 세션 쿠키 유지 필수
-        body: formData.toString(),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          credentials: "include", // ✅ 세션 쿠키 유지 필수
+          body: formData.toString(),
+        }
+      );
 
       if (res.ok) {
         toast.success("환영합니다!");
@@ -65,7 +70,10 @@ export function LoginForm() {
       <form onSubmit={handleSubmit}>
         <CardContent className="pt-8 px-6 md:px-8 space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor="email"
+              className="text-sm font-medium text-foreground"
+            >
               이메일
             </Label>
             <Input
@@ -80,7 +88,10 @@ export function LoginForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password" className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor="password"
+              className="text-sm font-medium text-foreground"
+            >
               비밀번호
             </Label>
             <Input
