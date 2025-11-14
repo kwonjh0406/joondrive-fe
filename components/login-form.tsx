@@ -34,7 +34,7 @@ export function LoginForm() {
       formData.append("email", email);
       formData.append("password", password);
       if (rememberMe) {
-        formData.append("remember-me", "on");
+        formData.append("rememberMe", "on");
       }
 
       const res = await fetch(
