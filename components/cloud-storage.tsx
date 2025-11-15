@@ -2,7 +2,6 @@
 
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
-import axios from "@/lib/axios"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -22,6 +21,7 @@ interface FileItem {
 }
 
 export function CloudStorage() {
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || ""
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedItems, setSelectedItems] = useState<number[]>([])
   const [currentParentId, setCurrentParentId] = useState<number | null>(null)
@@ -36,11 +36,18 @@ export function CloudStorage() {
 
   const fetchFiles = async (parentId: number | null) => {
     try {
-      const params = parentId != null ? { parentId } : {}
-      const res = await axios.get("/api/files", { params, withCredentials: true })
-      const data: any[] = res.data
+      const url = new URL(`${API_BASE}/api/files`)
+      if (parentId != null) url.searchParams.set("parentId", String(parentId))
 
-      // 서버 FileEntity shape을 FileItem으로 매핑
+      const res = await fetch(url.toString(), {
+        method: "GET",
+        credentials: "include",
+      })
+
+      if (!res.ok) throw new Error(`fetchFiles status ${res.status}`)
+
+      const data = (await res.json()) as any[]
+
       const mapped: FileItem[] = data.map((f: any) => ({
         id: Number(f.id),
         name: f.name ?? "Unknown",
@@ -85,10 +92,14 @@ export function CloudStorage() {
     if (currentParentId != null) formData.append("parentId", String(currentParentId))
 
     try {
-      await axios.post("/api/files/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
+      const res = await fetch(`${API_BASE}/api/files/upload`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
       })
+
+      if (!res.ok) throw new Error(`upload status ${res.status}`)
+
       toast.success(`${selectedFiles.length}개 파일이 업로드되었습니다.`)
       fetchFiles(currentParentId)
     } catch (e) {
@@ -102,10 +113,15 @@ export function CloudStorage() {
   const handleDelete = async () => {
     if (selectedItems.length === 0) return toast.error("삭제할 파일을 선택해주세요.")
     try {
-      await axios.post("/api/files/delete", selectedItems, {
+      const res = await fetch(`${API_BASE}/api/files/delete`, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        withCredentials: true,
+        body: JSON.stringify(selectedItems),
+        credentials: "include",
       })
+
+      if (!res.ok) throw new Error(`delete status ${res.status}`)
+
       toast.success(`${selectedItems.length}개 항목이 삭제되었습니다.`)
       setSelectedItems([])
       fetchFiles(currentParentId)
@@ -133,7 +149,15 @@ export function CloudStorage() {
     if (!folderName) return
 
     try {
-      await axios.post("/api/files/folders", { name: folderName, parentId: currentParentId }, { withCredentials: true })
+      const res = await fetch(`${API_BASE}/api/files/folders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: folderName, parentId: currentParentId }),
+        credentials: "include",
+      })
+
+      if (!res.ok) throw new Error(`create folder status ${res.status}`)
+
       toast.success("폴더가 생성되었습니다.")
       fetchFiles(currentParentId)
     } catch (e) {
