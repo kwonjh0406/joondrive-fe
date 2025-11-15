@@ -34,7 +34,7 @@ export function CloudStorage() {
   const totalStorage = 50
   const storagePercentage = (usedStorage / totalStorage) * 100
 
-  const BASE = "https://joondrive/api/files"
+  const BASE = "https://joondrive.com/api/files"
 
   const fetchFiles = async (parentId: number | null) => {
     try {
