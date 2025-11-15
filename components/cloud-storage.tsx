@@ -36,10 +36,10 @@ export function CloudStorage() {
 
   const fetchFiles = async (parentId: number | null) => {
     try {
-      const url = new URL(`${API_BASE}/api/files`)
-      if (parentId != null) url.searchParams.set("parentId", String(parentId))
+      let url = `/api/files`
+      if (parentId != null) url += `?parentId=${encodeURIComponent(String(parentId))}`
 
-      const res = await fetch(url.toString(), {
+      const res = await fetch(url, {
         method: "GET",
         credentials: "include",
       })
@@ -92,7 +92,7 @@ export function CloudStorage() {
     if (currentParentId != null) formData.append("parentId", String(currentParentId))
 
     try {
-      const res = await fetch(`${API_BASE}/api/files/upload`, {
+      const res = await fetch(`/api/files/upload`, {
         method: "POST",
         body: formData,
         credentials: "include",
@@ -113,7 +113,7 @@ export function CloudStorage() {
   const handleDelete = async () => {
     if (selectedItems.length === 0) return toast.error("삭제할 파일을 선택해주세요.")
     try {
-      const res = await fetch(`${API_BASE}/api/files/delete`, {
+      const res = await fetch(`/api/files/delete`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(selectedItems),
@@ -149,7 +149,7 @@ export function CloudStorage() {
     if (!folderName) return
 
     try {
-      const res = await fetch(`${API_BASE}/api/files/folders`, {
+      const res = await fetch(`/api/files/folders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: folderName, parentId: currentParentId }),
