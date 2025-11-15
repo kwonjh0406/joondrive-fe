@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState, useRef, useEffect } from "react"
-import { api } from "@/lib/axios"
+// import { api } from "@/lib/axios"  // removed — using hardcoded fetch
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -34,13 +34,23 @@ export function CloudStorage() {
   const totalStorage = 50
   const storagePercentage = (usedStorage / totalStorage) * 100
 
+  const BASE = "https://joondrive/api/files"
+
   const fetchFiles = async (parentId: number | null) => {
     try {
-      const params: any = {}
-      if (parentId != null) params.parentId = parentId
+      let url = BASE
+      if (parentId != null) url += `?parentId=${encodeURIComponent(String(parentId))}`
 
-      const res = await api.get("/api/files", { params })
-      const data = res.data as any[]
+      console.log("fetchFiles url:", url)
+      const res = await fetch(url, { method: "GET", credentials: "include" })
+      const raw = await res.json()
+
+      // If response is wrapper object, attempt to extract array
+      let data: any[] = Array.isArray(raw) ? raw : raw?.data ?? raw?.items ?? raw?.files ?? null
+      if (!Array.isArray(data)) {
+        const maybe = Object.values(raw || {}).find((v) => Array.isArray(v))
+        data = Array.isArray(maybe) ? maybe as any[] : []
+      }
 
       const mapped: FileItem[] = data.map((f: any) => ({
         id: Number(f.id),
@@ -86,9 +96,13 @@ export function CloudStorage() {
     if (currentParentId != null) formData.append("parentId", String(currentParentId))
 
     try {
-      await api.post("/api/files/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+      const uploadUrl = `${BASE}/upload`
+      const res = await fetch(uploadUrl, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
       })
+      if (!res.ok) throw new Error(`upload status ${res.status}`)
 
       toast.success(`${selectedFiles.length}개 파일이 업로드되었습니다.`)
       fetchFiles(currentParentId)
@@ -103,9 +117,14 @@ export function CloudStorage() {
   const handleDelete = async () => {
     if (selectedItems.length === 0) return toast.error("삭제할 파일을 선택해주세요.")
     try {
-      await api.post("/api/files/delete", selectedItems, {
+      const deleteUrl = `${BASE}/delete`
+      const res = await fetch(deleteUrl, {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(selectedItems),
+        credentials: "include",
       })
+      if (!res.ok) throw new Error(`delete status ${res.status}`)
 
       toast.success(`${selectedItems.length}개 항목이 삭제되었습니다.`)
       setSelectedItems([])
@@ -134,7 +153,15 @@ export function CloudStorage() {
     if (!folderName) return
 
     try {
-      await api.post("/api/files/folders", { name: folderName, parentId: currentParentId })
+      const folderUrl = `${BASE}/folders`
+      const res = await fetch(folderUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: folderName, parentId: currentParentId }),
+        credentials: "include",
+      })
+      if (!res.ok) throw new Error(`create folder status ${res.status}`)
+
       toast.success("폴더가 생성되었습니다.")
       fetchFiles(currentParentId)
     } catch (e) {
