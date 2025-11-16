@@ -5,10 +5,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8080/api"
 
 export async function middleware(req: NextRequest) {
   const sessionId = req.cookies.get("JSESSIONID")?.value
+const rememberMe = req.cookies.get("remember-me")?.value
 
-  if (!sessionId) {
-    return NextResponse.redirect(new URL("/login", req.url))
-  }
+if (!sessionId && !rememberMe) {
+  return NextResponse.redirect(new URL("/login", req.url))
+}
+
 
   try {
     const verifyUrl = `${API_URL.replace(/\/$/, "")}/auth/verify`
