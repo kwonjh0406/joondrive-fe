@@ -4,33 +4,34 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: hsl(0 0% 99%);
-  --foreground: hsl(240 10% 3.9%);
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(215 25% 18%);
   --card: hsl(0 0% 100%);
   --card-foreground: oklch(0.25 0.02 264);
   --popover: hsl(0 0% 100%);
   --popover-foreground: oklch(0.25 0.02 264);
   /* primary를 더 진한 파란색으로 변경하여 배경과 대비 강화 */
-  --primary: hsl(142.1 76.2% 36.3%);
-  --primary-foreground: hsl(0, 0%, 100%);
-  --secondary: hsl(240 4.8% 95.9%);
+  --primary: hsl(215 45% 32%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(215 15% 93%);
   --secondary-foreground: oklch(0.25 0.02 264);
-  --muted: hsl(240 4.8% 95.9%);
+  --muted: hsl(215 15% 93%);
   --muted-foreground: oklch(0.55 0.01 264);
   /* accent를 primary보다 더 어두운 초록색으로 변경하여 hover 시 흰색 글자가 잘 보이도록 설정 */
-  --accent: hsl(142.1 76.2% 30%);
+  --accent: hsl(215 25% 85%);
+  --accent-foreground: hsl(215 45% 32%);
   --destructive: hsl(0 84.2% 60.2%);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: hsl(240 5.9% 90%);
+  --border: hsl(218, 18%, 88%);
   --input: hsl(0, 0%, 95%);
-  --ring: hsl(142.1 76.2% 36.3%);
-  --chart-1: hsl(142.1 76.2% 36.3%);
-  --chart-2: hsl(159 84% 45%);
-  --chart-3: hsl(134 61% 41%);
-  --chart-4: hsl(120 100% 25%);
-  --chart-5: hsl(103 43% 50%);
-  --radius: 0.75rem;
-  --sidebar: hsl(0 0% 98%);
+  --ring: hsl(215 45% 32%);
+  --chart-1: hsl(215 45% 32%);
+  --chart-2: hsl(220 38% 45%);
+  --chart-3: hsl(210 32% 58%);
+  --chart-4: hsl(205 25% 68%);
+  --chart-5: hsl(218 52% 22%);
+  --radius: 0.5rem;
+  --sidebar: hsl(215 12% 97%);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
   --sidebar-primary-foreground: oklch(0.985 0 0);
@@ -41,33 +42,33 @@
 }
 
 .dark {
-  --background: rgb(2, 8, 23);
-  --foreground: rgb(248, 250, 252);
-  --card: rgb(2, 8, 23);
+  --background: hsl(215 28% 9%);
+  --foreground: hsl(215 15% 92%);
+  --card: hsl(215 28% 9%);
   --card-foreground: oklch(0.95 0.005 264);
-  --popover: rgb(2, 8, 23);
+  --popover: hsl(215 28% 9%);
   --popover-foreground: oklch(0.95 0.005 264);
   /* 다크 모드에서 primary를 더 밝은 파란색으로 변경 */
-  --primary: hsl(217 91% 65%);
+  --primary: hsl(215 45% 62%);
   --primary-foreground: hsl(222.2 47.4% 11.2%);
-  --secondary: rgb(30, 41, 59);
+  --secondary: hsl(215 20% 18%);
   --secondary-foreground: oklch(0.95 0.005 264);
-  --muted: rgb(30, 41, 59);
+  --muted: hsl(215 20% 18%);
   --muted-foreground: oklch(0.65 0.01 264);
   /* 다크 모드 accent를 더 밝게 하여 hover 시 대비 강화 */
-  --accent: hsl(217 91% 72%);
+  --accent: hsl(215 25% 28%);
   --accent-foreground: hsl(222.2 47.4% 11.2%);
-  --destructive: rgb(220, 38, 38);
+  --destructive: hsl(0 72.2% 50.6%);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: rgb(30, 41, 59);
-  --input: rgb(30, 41, 59);
-  --ring: hsl(217 91% 65%);
-  --chart-1: rgb(38, 98, 217);
-  --chart-2: rgb(46, 184, 138);
-  --chart-3: rgb(232, 140, 48);
-  --chart-4: rgb(175, 87, 219);
-  --chart-5: rgb(226, 54, 112);
-  --sidebar: rgb(24, 24, 27);
+  --border: hsl(215 20% 18%);
+  --input: hsl(215 20% 18%);
+  --ring: hsl(215 45% 62%);
+  --chart-1: hsl(215 45% 62%);
+  --chart-2: hsl(220 38% 55%);
+  --chart-3: hsl(210 32% 68%);
+  --chart-4: hsl(205 25% 78%);
+  --chart-5: hsl(218 52% 42%);
+  --sidebar: hsl(215 25% 12%);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
   --sidebar-primary-foreground: oklch(0.985 0 0);
