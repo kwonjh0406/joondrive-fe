@@ -8,9 +8,20 @@ export async function GET() {
   // 세션 쿠키 확인
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("JSESSIONID")?.value;
+  const rememberMe = cookieStore.get("remember-me")?.value;
 
-  if (!sessionId) {
+  // JSESSIONID와 remember-me 둘 다 없으면 401 반환
+  if (!sessionId && !rememberMe) {
     return new Response("세션이 없습니다.", { status: 401 });
+  }
+
+  // 백엔드로 전달할 쿠키 헤더 구성
+  const cookieHeader: string[] = [];
+  if (sessionId) {
+    cookieHeader.push(`JSESSIONID=${sessionId}`);
+  }
+  if (rememberMe) {
+    cookieHeader.push(`remember-me=${rememberMe}`);
   }
 
   // 백엔드 서버에 세션 검증 요청
@@ -19,7 +30,7 @@ export async function GET() {
       `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify`,
       {
         headers: {
-          Cookie: `JSESSIONID=${sessionId}`,
+          Cookie: cookieHeader.join("; "),
         },
         credentials: "include",
         cache: "no-store",
