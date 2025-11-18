@@ -11,6 +11,10 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
 import Link from "next/link";
 
+/**
+ * 로그인 폼 컴포넌트
+ * 이메일과 비밀번호를 입력받아 백엔드 서버에 인증 요청
+ */
 export function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -21,6 +25,7 @@ export function LoginForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // 입력값 검증
     if (!email || !password) {
       toast.error("이메일과 비밀번호를 입력해주세요.");
       return;
@@ -29,14 +34,13 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
-      // form-data 대신 x-www-form-urlencoded로 보내야 Spring Security에서 인식됨
+      // Spring Security에서 인식하기 위해 x-www-form-urlencoded 형식 사용
       const formData = new URLSearchParams();
       formData.append("email", email);
       formData.append("password", password);
       if (rememberMe) {
         formData.append("rememberMe", "on");
       }
-      console.log("API_URL =", process.env.NEXT_PUBLIC_API_URL);
 
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
@@ -45,21 +49,21 @@ export function LoginForm() {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
           },
-          credentials: "include", // ✅ 세션 쿠키 유지 필수
+          credentials: "include", // 세션 쿠키 유지
           body: formData.toString(),
         }
       );
 
+      // 응답 처리
       if (res.ok) {
         toast.success("환영합니다!");
-        router.push("/"); // ✅ 로그인 성공 시 홈으로 이동
+        router.push("/");
       } else if (res.status === 401) {
         toast.error("이메일 또는 비밀번호가 올바르지 않습니다.");
       } else {
         toast.error("로그인 중 문제가 발생했습니다.");
       }
     } catch (error) {
-      console.error(error);
       toast.error("서버와 연결할 수 없습니다.");
     } finally {
       setIsLoading(false);
@@ -80,7 +84,6 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
-              placeholder="example@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="bg-input border-border focus:ring-primary h-11"
@@ -98,7 +101,7 @@ export function LoginForm() {
             <Input
               id="password"
               type="password"
-              placeholder="••••••••"
+              placeholder=""
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="bg-input border-border focus:ring-primary h-11"
