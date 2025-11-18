@@ -48,12 +48,41 @@ export function CloudStorage() {
   const [files, setFiles] = useState<FileItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const userEmail = "user@example.com";
-  const usedStorage = 12.4;
-  const totalStorage = 50;
-  const storagePercentage = (usedStorage / totalStorage) * 100;
+  const [userEmail, setUserEmail] = useState<string>("");
+  const [usedStorage, setUsedStorage] = useState<number>(0);
+  const [totalStorage, setTotalStorage] = useState<number>(0);
+  const storagePercentage = totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
 
   const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/files`;
+  const DRIVE_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/drive`;
+
+  const fetchDriveInfo = async () => {
+    try {
+      const url = `${DRIVE_BASE}/me`;
+      const res = await fetch(url, { method: "GET", credentials: "include" });
+      
+      if (!res.ok) {
+        throw new Error(`drive info status ${res.status}`);
+      }
+
+      const response = await res.json();
+      
+      // ApiResponse 구조: { success, message, data }
+      // data 구조: { email, usedStorage (바이트), storageLimit (GB) }
+      if (response.success && response.data) {
+        const { email, usedStorage: usedBytes, storageLimit } = response.data;
+        
+        setUserEmail(email || "");
+        // usedStorage를 바이트에서 GB로 변환 (1024^3 = 1073741824)
+        const usedStorageGB = usedBytes ? usedBytes / (1024 * 1024 * 1024) : 0;
+        setUsedStorage(usedStorageGB);
+        setTotalStorage(storageLimit || 0);
+      }
+    } catch (e) {
+      console.error("fetchDriveInfo error:", e);
+      toast.error("드라이브 정보를 불러오는 중 오류가 발생했습니다.");
+    }
+  };
 
   const fetchFiles = async (parentId: number | null) => {
     try {
@@ -91,6 +120,7 @@ export function CloudStorage() {
   };
 
   useEffect(() => {
+    fetchDriveInfo();
     fetchFiles(currentParentId);
   }, [currentParentId]);
 
@@ -127,13 +157,35 @@ export function CloudStorage() {
         body: formData,
         credentials: "include",
       });
-      if (!res.ok) throw new Error(`upload status ${res.status}`);
+      
+      if (!res.ok) {
+        // 백엔드에서 반환하는 에러 메시지 추출
+        let errorMessage = `업로드 실패 (상태 코드: ${res.status})`;
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData?.message || errorData?.error || errorData?.data?.message || errorMessage;
+        } catch {
+          // JSON 파싱 실패 시 기본 메시지 사용
+        }
+        throw new Error(errorMessage);
+      }
 
-      toast.success(`${selectedFiles.length}개 파일이 업로드되었습니다.`);
+      // 성공 응답 처리
+      let successMessage = `${selectedFiles.length}개 파일이 업로드되었습니다.`;
+      try {
+        const result = await res.json();
+        successMessage = result?.message || successMessage;
+      } catch {
+        // JSON 응답이 없으면 기본 메시지 사용
+      }
+
+      toast.success(successMessage);
+      fetchDriveInfo();
       fetchFiles(currentParentId);
     } catch (e) {
       console.error("handleFileChange error:", e);
-      toast.error("파일 업로드 중 오류 발생");
+      const errorMessage = e instanceof Error ? e.message : "파일 업로드 중 오류 발생";
+      toast.error(errorMessage);
     }
 
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -154,9 +206,30 @@ export function CloudStorage() {
 
       toast.success(`${selectedItems.length}개 항목이 삭제되었습니다.`);
       setSelectedItems([]);
+      fetchDriveInfo();
       fetchFiles(currentParentId);
     } catch (e) {
       console.error("handleDelete error:", e);
+      toast.error("삭제 중 오류 발생");
+    }
+  };
+
+  const handleDeleteSingle = async (fileId: number) => {
+    try {
+      const deleteUrl = `${BASE}/delete`;
+      const res = await fetch(deleteUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify([fileId]),
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(`delete status ${res.status}`);
+
+      toast.success("항목이 삭제되었습니다.");
+      fetchDriveInfo();
+      fetchFiles(currentParentId);
+    } catch (e) {
+      console.error("handleDeleteSingle error:", e);
       toast.error("삭제 중 오류 발생");
     }
   };
@@ -211,6 +284,37 @@ export function CloudStorage() {
     if (selectedItems.length === 0)
       return toast.error("다운로드할 파일을 선택해주세요.");
     toast.success(`${selectedItems.length}개 파일 다운로드 시작`);
+  };
+
+  const handleDownloadSingle = async (fileId: number) => {
+    try {
+      const downloadUrl = `${BASE}/download/${fileId}`;
+      const res = await fetch(downloadUrl, {
+        method: "GET",
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(`download status ${res.status}`);
+
+      const blob = await res.blob();
+      const contentDisposition = res.headers.get("content-disposition");
+      const fileName =
+        contentDisposition?.split("filename=")[1]?.replace(/"/g, "") ||
+        `file-${fileId}`;
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
+      toast.success("파일 다운로드가 시작되었습니다.");
+    } catch (e) {
+      console.error("handleDownloadSingle error:", e);
+      toast.error("다운로드 중 오류 발생");
+    }
   };
 
   const handleLogout = () => toast.success("로그아웃되었습니다.");
@@ -299,7 +403,7 @@ export function CloudStorage() {
               저장소 사용량
             </h2>
             <span className="text-sm text-muted-foreground">
-              {usedStorage} GB / {totalStorage} GB
+              {usedStorage.toFixed(1)} GB / {totalStorage} GB
             </span>
           </div>
           <Progress value={storagePercentage} className="h-2" />
@@ -432,10 +536,15 @@ export function CloudStorage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleDownloadSingle(file.id)}
+                        >
                           <Download className="mr-2 h-4 w-4" /> 다운로드
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem
+                          className="text-destructive"
+                          onClick={() => handleDeleteSingle(file.id)}
+                        >
                           <Trash2 className="mr-2 h-4 w-4" /> 삭제
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -488,10 +597,15 @@ export function CloudStorage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDownloadSingle(file.id)}
+                          >
                             <Download className="mr-2 h-4 w-4" /> 다운로드
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="text-destructive">
+                          <DropdownMenuItem
+                            className="text-destructive"
+                            onClick={() => handleDeleteSingle(file.id)}
+                          >
                             <Trash2 className="mr-2 h-4 w-4" /> 삭제
                           </DropdownMenuItem>
                         </DropdownMenuContent>
