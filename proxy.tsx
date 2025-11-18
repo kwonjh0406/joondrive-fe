@@ -17,6 +17,9 @@ export async function proxy(req: NextRequest) {
   // 백엔드 서버에 세션 검증 요청
   try {
     const verifyRes = await fetch(`${req.nextUrl.origin}/api/auth/verify`, {
+      headers: {
+        Cookie: req.headers.get("cookie") || "",
+      },
       cache: "no-store",
     });
 
