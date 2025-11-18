@@ -26,6 +26,7 @@ import {
   LogOut,
   MoreVertical,
   Plus,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -51,6 +52,7 @@ export function CloudStorage() {
   const [userEmail, setUserEmail] = useState<string>("");
   const [usedStorage, setUsedStorage] = useState<number>(0);
   const [totalStorage, setTotalStorage] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
   const storagePercentage = totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
 
   const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/files`;
@@ -150,6 +152,9 @@ export function CloudStorage() {
     if (currentParentId != null)
       formData.append("parentId", String(currentParentId));
 
+    setIsUploading(true);
+    toast.loading(`${selectedFiles.length}개 파일 업로드 중...`, { id: "upload" });
+
     try {
       const uploadUrl = `${BASE}/upload`;
       const res = await fetch(uploadUrl, {
@@ -179,13 +184,15 @@ export function CloudStorage() {
         // JSON 응답이 없으면 기본 메시지 사용
       }
 
-      toast.success(successMessage);
+      toast.success(successMessage, { id: "upload" });
       fetchDriveInfo();
       fetchFiles(currentParentId);
     } catch (e) {
       console.error("handleFileChange error:", e);
       const errorMessage = e instanceof Error ? e.message : "파일 업로드 중 오류 발생";
-      toast.error(errorMessage);
+      toast.error(errorMessage, { id: "upload" });
+    } finally {
+      setIsUploading(false);
     }
 
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -430,10 +437,17 @@ export function CloudStorage() {
         <div className="mb-5 md:mb-6 flex flex-wrap items-center gap-2 md:gap-3">
           <Button
             onClick={handleUpload}
-            className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+            disabled={isUploading}
+            className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <Upload className="h-4 w-4" />
-            <span className="hidden sm:inline">업로드</span>
+            {isUploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Upload className="h-4 w-4" />
+            )}
+            <span className="hidden sm:inline">
+              {isUploading ? "업로드 중..." : "업로드"}
+            </span>
           </Button>
           <Button
             onClick={handleCreateFolder}
