@@ -26,3 +26,4 @@ export async function GET() {
     return new Response("서버 연결 실패", { status: 500 })
   }
 }
+
