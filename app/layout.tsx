@@ -1,18 +1,65 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
-import { Toaster } from "sonner"
-import { Footer } from "@/components/footer"
-import "./globals.css"
+import type React from "react";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { Toaster } from "sonner";
+import { Footer } from "@/components/footer";
+import "./globals.css";
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const _geist = Geist({ subsets: ["latin"] });
+const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Joon Drive",
-  description: "Created with v0",
-  generator: "v0.app",
+  title: {
+    default: "Joon Drive",
+    template: "%s | Joon Drive",
+  },
+  description:
+    "안전하고 편리한 클라우드 스토리지 서비스. 파일 업로드, 다운로드, 관리 및 공유를 한 곳에서.",
+  keywords: [
+    "클라우드 스토리지",
+    "파일 저장소",
+    "클라우드 드라이브",
+    "파일 관리",
+    "Joon Drive",
+  ],
+  authors: [{ name: "Joon Drive" }],
+  creator: "Joon Drive",
+  publisher: "Joon Drive",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+  ),
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: "/",
+    title: "Joon Drive - 클라우드 스토리지 서비스",
+    description:
+      "안전하고 편리한 클라우드 스토리지 서비스. 파일 업로드, 다운로드, 관리 및 공유를 한 곳에서.",
+    siteName: "Joon Drive",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Joon Drive - 클라우드 스토리지 서비스",
+    description:
+      "안전하고 편리한 클라우드 스토리지 서비스. 파일 업로드, 다운로드, 관리 및 공유를 한 곳에서.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   icons: {
     icon: [
       {
@@ -30,23 +77,21 @@ export const metadata: Metadata = {
     ],
     apple: "/apple-icon.png",
   },
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
       <body className={`font-sans antialiased flex flex-col min-h-screen`}>
-        <main className="flex-1">
-          {children}
-        </main>
+        <main className="flex-1">{children}</main>
         <Footer />
         <Toaster position="top-center" richColors />
         <Analytics />
       </body>
     </html>
-  )
+  );
 }
