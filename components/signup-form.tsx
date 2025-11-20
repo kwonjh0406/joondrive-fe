@@ -72,17 +72,20 @@ export function SignupForm() {
       setTimeLeft(expiresIn);
       setIsEmailSent(true);
       toast.success("이메일로 인증번호가 발송되었습니다.");
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      const status = err?.response?.status;
+      const status = (err as { response?: { status?: number } })?.response?.status;
       if (status === 409) {
         toast.error("이미 가입된 이메일입니다.");
       } else {
-        const errorMessage =
-          err?.response?.data?.message ||
-          err?.response?.data ||
-          "이메일 발송에 실패했습니다.";
-        toast.error(errorMessage);
+      const errorResponse = err as {
+        response?: { data?: { message?: string } | string };
+      };
+      const errorMessage =
+        (typeof errorResponse?.response?.data === "object"
+          ? errorResponse.response.data?.message
+          : errorResponse?.response?.data) || "이메일 발송에 실패했습니다.";
+      toast.error(errorMessage);
       }
     } finally {
       setIsLoading(false);
@@ -116,12 +119,15 @@ export function SignupForm() {
       setTimeout(() => {
         router.push("/login");
       }, 1500);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
+      const errorResponse = err as {
+        response?: { data?: { message?: string } | string };
+      };
       const errorMessage =
-        err?.response?.data?.message ||
-        err?.response?.data ||
-        "회원가입에 실패했습니다.";
+        (typeof errorResponse?.response?.data === "object"
+          ? errorResponse.response.data?.message
+          : errorResponse?.response?.data) || "회원가입에 실패했습니다.";
       toast.error(errorMessage);
     } finally {
       setIsLoading(false);

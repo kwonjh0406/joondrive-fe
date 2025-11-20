@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
-// import { api } from "@/lib/axios"  // removed — using hardcoded fetch
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -97,19 +96,29 @@ export function CloudStorage() {
       const raw = await res.json();
 
       // If response is wrapper object, attempt to extract array
-      let data: any[] = Array.isArray(raw)
+      interface ApiFileResponse {
+        id: number | string;
+        name?: string;
+        fileType?: string;
+        size?: number;
+        modified?: string;
+        modifiedAt?: string;
+        parentId?: number | string | null;
+      }
+
+      let data: ApiFileResponse[] = Array.isArray(raw)
         ? raw
         : raw?.data ?? raw?.items ?? raw?.files ?? null;
       if (!Array.isArray(data)) {
         const maybe = Object.values(raw || {}).find((v) => Array.isArray(v));
-        data = Array.isArray(maybe) ? (maybe as any[]) : [];
+        data = Array.isArray(maybe) ? (maybe as ApiFileResponse[]) : [];
       }
 
-      const mapped: FileItem[] = data.map((f: any) => ({
+      const mapped: FileItem[] = data.map((f: ApiFileResponse) => ({
         id: Number(f.id),
         name: f.name ?? "Unknown",
         type: f.fileType === "folder" ? "folder" : "file",
-        size: f.size != null ? String(f.size) : undefined,
+        size: f.size != null ? formatFileSize(Number(f.size)) : undefined,
         modified: f.modified ?? f.modifiedAt ?? "",
         parentId: f.parentId != null ? Number(f.parentId) : null,
       }));
@@ -289,9 +298,18 @@ export function CloudStorage() {
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+    const size = bytes / Math.pow(k, i);
+    
+    // 소수점 처리: 1보다 작으면 소수점 2자리, 그 외에는 소수점 1자리
+    const formattedSize = size < 1 
+      ? size.toFixed(2) 
+      : size >= 100 
+      ? Math.round(size).toString()
+      : size.toFixed(1);
+    
+    return `${formattedSize} ${sizes[i]}`;
   };
 
   const handleDownload = () => {
