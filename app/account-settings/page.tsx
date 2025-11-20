@@ -2,8 +2,8 @@ import { ChangePasswordForm } from "@/components/change-password-form"
 
 export default function AccountSettingsPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center md:justify-center p-4 bg-background px-4 py-4">
-      <div className="w-full max-w-md md:mt-0 mt-8">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-120px)] md:min-h-[calc(100vh-100px)] p-4 bg-background">
+      <div className="w-full max-w-md">
         <ChangePasswordForm />
       </div>
     </div>

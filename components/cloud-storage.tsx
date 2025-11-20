@@ -53,7 +53,8 @@ export function CloudStorage() {
   const [usedStorage, setUsedStorage] = useState<number>(0);
   const [totalStorage, setTotalStorage] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const storagePercentage = totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
+  const storagePercentage =
+    totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
 
   const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/files`;
   const DRIVE_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/drive`;
@@ -62,18 +63,18 @@ export function CloudStorage() {
     try {
       const url = `${DRIVE_BASE}/me`;
       const res = await fetch(url, { method: "GET", credentials: "include" });
-      
+
       if (!res.ok) {
         throw new Error(`drive info status ${res.status}`);
       }
 
       const response = await res.json();
-      
+
       // ApiResponse 구조: { success, message, data }
       // data 구조: { email, usedStorage (바이트), storageLimit (GB) }
       if (response.success && response.data) {
         const { email, usedStorage: usedBytes, storageLimit } = response.data;
-        
+
         setUserEmail(email || "");
         // usedStorage를 바이트에서 GB로 변환 (1024^3 = 1073741824)
         const usedStorageGB = usedBytes ? usedBytes / (1024 * 1024 * 1024) : 0;
@@ -153,7 +154,9 @@ export function CloudStorage() {
       formData.append("parentId", String(currentParentId));
 
     setIsUploading(true);
-    toast.loading(`${selectedFiles.length}개 파일 업로드 중...`, { id: "upload" });
+    toast.loading(`${selectedFiles.length}개 파일 업로드 중...`, {
+      id: "upload",
+    });
 
     try {
       const uploadUrl = `${BASE}/upload`;
@@ -162,13 +165,17 @@ export function CloudStorage() {
         body: formData,
         credentials: "include",
       });
-      
+
       if (!res.ok) {
         // 백엔드에서 반환하는 에러 메시지 추출
         let errorMessage = `업로드 실패 (상태 코드: ${res.status})`;
         try {
           const errorData = await res.json();
-          errorMessage = errorData?.message || errorData?.error || errorData?.data?.message || errorMessage;
+          errorMessage =
+            errorData?.message ||
+            errorData?.error ||
+            errorData?.data?.message ||
+            errorMessage;
         } catch {
           // JSON 파싱 실패 시 기본 메시지 사용
         }
@@ -189,7 +196,8 @@ export function CloudStorage() {
       fetchFiles(currentParentId);
     } catch (e) {
       console.error("handleFileChange error:", e);
-      const errorMessage = e instanceof Error ? e.message : "파일 업로드 중 오류 발생";
+      const errorMessage =
+        e instanceof Error ? e.message : "파일 업로드 중 오류 발생";
       toast.error(errorMessage, { id: "upload" });
     } finally {
       setIsUploading(false);
@@ -340,7 +348,7 @@ export function CloudStorage() {
         <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
           <div className="flex items-center gap-3 md:gap-4 flex-1 max-w-2xl min-w-0">
             <h1 className="text-xl font-bold text-foreground hidden md:block whitespace-nowrap">
-              Joon Drive
+              드라이브
             </h1>
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
