@@ -311,9 +311,28 @@ export function CloudStorage() {
 
       const blob = await res.blob();
       const contentDisposition = res.headers.get("content-disposition");
-      const fileName =
-        contentDisposition?.split("filename=")[1]?.replace(/"/g, "") ||
-        `file-${fileId}`;
+      
+      // 파일명 추출 (Content-Disposition 헤더에서)
+      let fileName = "";
+      if (contentDisposition) {
+        // filename*=UTF-8'' 형식 처리 (한글 파일명)
+        const utf8Match = contentDisposition.match(/filename\*=UTF-8''(.+)/i);
+        if (utf8Match) {
+          fileName = decodeURIComponent(utf8Match[1]);
+        } else {
+          // 일반 filename="파일명" 형식 처리
+          const match = contentDisposition.match(/filename="?([^";]+)"?/i);
+          if (match) {
+            fileName = match[1];
+          }
+        }
+      }
+      
+      // 백엔드에서 파일명을 보내지 않은 경우, 파일 목록에서 찾기
+      if (!fileName) {
+        const file = files.find((f) => f.id === fileId);
+        fileName = file?.name || `file-${fileId}`;
+      }
 
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
