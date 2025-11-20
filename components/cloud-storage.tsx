@@ -93,7 +93,6 @@ export function CloudStorage() {
       if (parentId != null)
         url += `?parentId=${encodeURIComponent(String(parentId))}`;
 
-      console.log("fetchFiles url:", url);
       const res = await fetch(url, { method: "GET", credentials: "include" });
       const raw = await res.json();
 
@@ -547,7 +546,9 @@ export function CloudStorage() {
                         </span>
                       </button>
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        {file.size && <span>{file.size}</span>}
+                        {file.type === "file" && file.size && (
+                          <span>{file.size}</span>
+                        )}
                         <span>{file.modified}</span>
                       </div>
                     </div>
@@ -602,7 +603,7 @@ export function CloudStorage() {
                       </button>
                     </div>
                     <div className="col-span-2 text-sm text-muted-foreground">
-                      {file.size || "-"}
+                      {file.type === "file" ? file.size || "-" : "-"}
                     </div>
                     <div className="col-span-3 text-sm text-muted-foreground">
                       {file.modified}

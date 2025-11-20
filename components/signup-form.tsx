@@ -76,12 +76,13 @@ export function SignupForm() {
       console.error(err);
       const status = err?.response?.status;
       if (status === 409) {
-        // 이미 가입된 이메일인 경우 사용자에게 알려줌
         toast.error("이미 가입된 이메일입니다.");
       } else {
-        toast.error(
-          err?.response?.data?.message || "이메일 발송에 실패했습니다."
-        );
+        const errorMessage =
+          err?.response?.data?.message ||
+          err?.response?.data ||
+          "이메일 발송에 실패했습니다.";
+        toast.error(errorMessage);
       }
     } finally {
       setIsLoading(false);
@@ -117,7 +118,11 @@ export function SignupForm() {
       }, 1500);
     } catch (err: any) {
       console.error(err);
-      toast.error(err.response?.data || "회원가입에 실패했습니다.");
+      const errorMessage =
+        err?.response?.data?.message ||
+        err?.response?.data ||
+        "회원가입에 실패했습니다.";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -195,7 +200,7 @@ export function SignupForm() {
             {!isEmailSent && (
               <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-accent text-primary-foreground font-medium h-12 transition-all mt-2"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-12 transition-all mt-2"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -241,7 +246,7 @@ export function SignupForm() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-primary hover:bg-accent text-primary-foreground font-medium h-12 transition-all animate-in fade-in slide-in-from-bottom-2 duration-500"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-12 transition-all animate-in fade-in slide-in-from-bottom-2 duration-500"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -264,7 +269,7 @@ export function SignupForm() {
           </span>
           <a
             href="/login"
-            className="text-primary hover:text-accent transition-colors font-medium"
+            className="text-primary hover:text-primary/80 transition-colors font-medium"
           >
             로그인
           </a>
