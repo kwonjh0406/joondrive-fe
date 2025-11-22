@@ -27,8 +27,13 @@ import {
   MoreVertical,
   Plus,
   Loader2,
+  List,
+  Grid,
+  Image as ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
+
+type ViewMode = "list" | "grid";
 
 interface FileItem {
   id: number;
@@ -37,6 +42,80 @@ interface FileItem {
   size?: string;
   modified: string;
   parentId: number | null;
+  mimeType?: string;
+}
+
+// 썸네일 이미지 컴포넌트
+function ThumbnailImage({ file }: { file: FileItem }) {
+  const [thumbnailUrl, setThumbnailUrl] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadThumbnail = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/files/download/${file.id}`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to load thumbnail");
+        }
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+
+        if (isMounted) {
+          setThumbnailUrl(url);
+          setIsLoading(false);
+        } else {
+          URL.revokeObjectURL(url);
+        }
+      } catch (e) {
+        console.error("썸네일 로드 실패:", e);
+        if (isMounted) {
+          setHasError(true);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    loadThumbnail();
+
+    return () => {
+      isMounted = false;
+      if (thumbnailUrl) {
+        URL.revokeObjectURL(thumbnailUrl);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file.id]);
+
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-muted/50">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (hasError || !thumbnailUrl) {
+    return <ImageIcon className="h-12 w-12 text-muted-foreground" />;
+  }
+
+  return (
+    <img
+      src={thumbnailUrl}
+      alt={file.name}
+      className="w-full h-full object-cover"
+    />
+  );
 }
 
 export function CloudStorage() {
@@ -53,6 +132,9 @@ export function CloudStorage() {
   const [usedStorage, setUsedStorage] = useState<number>(0);
   const [totalStorage, setTotalStorage] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const dragCounterRef = useRef<number>(0);
   const storagePercentage = totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
 
   const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/files`;
@@ -112,6 +194,7 @@ export function CloudStorage() {
         size: f.size != null ? String(f.size) : undefined,
         modified: f.modified ?? f.modifiedAt ?? "",
         parentId: f.parentId != null ? Number(f.parentId) : null,
+        mimeType: f.mimeType ?? f.contentType ?? undefined,
       }));
 
       setFiles(mapped);
@@ -143,17 +226,16 @@ export function CloudStorage() {
 
   const handleUpload = () => fileInputRef.current?.click();
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files;
-    if (!selectedFiles || selectedFiles.length === 0) return;
+  const uploadFiles = async (filesToUpload: FileList | File[]) => {
+    if (!filesToUpload || filesToUpload.length === 0) return;
 
     const formData = new FormData();
-    Array.from(selectedFiles).forEach((file) => formData.append("files", file));
+    Array.from(filesToUpload).forEach((file) => formData.append("files", file));
     if (currentParentId != null)
       formData.append("parentId", String(currentParentId));
 
     setIsUploading(true);
-    toast.loading(`${selectedFiles.length}개 파일 업로드 중...`, { id: "upload" });
+    toast.loading(`${filesToUpload.length}개 파일 업로드 중...`, { id: "upload" });
 
     try {
       const uploadUrl = `${BASE}/upload`;
@@ -176,7 +258,7 @@ export function CloudStorage() {
       }
 
       // 성공 응답 처리
-      let successMessage = `${selectedFiles.length}개 파일이 업로드되었습니다.`;
+      let successMessage = `${filesToUpload.length}개 파일이 업로드되었습니다.`;
       try {
         const result = await res.json();
         successMessage = result?.message || successMessage;
@@ -188,15 +270,72 @@ export function CloudStorage() {
       fetchDriveInfo();
       fetchFiles(currentParentId);
     } catch (e) {
-      console.error("handleFileChange error:", e);
+      console.error("uploadFiles error:", e);
       const errorMessage = e instanceof Error ? e.message : "파일 업로드 중 오류 발생";
       toast.error(errorMessage, { id: "upload" });
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files;
+    if (!selectedFiles || selectedFiles.length === 0) return;
+
+    await uploadFiles(selectedFiles);
 
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  useEffect(() => {
+    const handleWindowDragEnter = (e: DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer?.types.includes("Files")) {
+        dragCounterRef.current += 1;
+        if (dragCounterRef.current === 1) {
+          setIsDragging(true);
+        }
+      }
+    };
+
+    const handleWindowDragOver = (e: DragEvent) => {
+      e.preventDefault();
+      if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = "copy";
+      }
+    };
+
+    const handleWindowDragLeave = (e: DragEvent) => {
+      e.preventDefault();
+      dragCounterRef.current -= 1;
+      if (dragCounterRef.current === 0) {
+        setIsDragging(false);
+      }
+    };
+
+    const handleWindowDrop = async (e: DragEvent) => {
+      e.preventDefault();
+      dragCounterRef.current = 0;
+      setIsDragging(false);
+
+      const droppedFiles = e.dataTransfer?.files;
+      if (droppedFiles && droppedFiles.length > 0) {
+        await uploadFiles(droppedFiles);
+      }
+    };
+
+    window.addEventListener("dragenter", handleWindowDragEnter);
+    window.addEventListener("dragover", handleWindowDragOver);
+    window.addEventListener("dragleave", handleWindowDragLeave);
+    window.addEventListener("drop", handleWindowDrop);
+
+    return () => {
+      window.removeEventListener("dragenter", handleWindowDragEnter);
+      window.removeEventListener("dragover", handleWindowDragOver);
+      window.removeEventListener("dragleave", handleWindowDragLeave);
+      window.removeEventListener("drop", handleWindowDrop);
+    };
+  }, [currentParentId]);
 
   const handleDelete = async () => {
     if (selectedItems.length === 0)
@@ -326,8 +465,19 @@ export function CloudStorage() {
 
   const handleLogout = () => toast.success("로그아웃되었습니다.");
 
+  const isImageFile = (file: FileItem): boolean => {
+    if (file.type === "folder") return false;
+    if (!file.mimeType) {
+      // mimeType이 없으면 파일 확장자로 판단
+      const ext = file.name.split(".").pop()?.toLowerCase();
+      return ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].includes(ext || "");
+    }
+    return file.mimeType.startsWith("image/");
+  };
+
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative">
       <input
         ref={fileInputRef}
         type="file"
@@ -335,6 +485,20 @@ export function CloudStorage() {
         onChange={handleFileChange}
         className="hidden"
       />
+
+      {isDragging && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm border-4 border-dashed border-primary rounded-lg m-4 pointer-events-none">
+          <div className="text-center pointer-events-auto">
+            <Upload className="h-16 w-16 mx-auto mb-4 text-primary animate-bounce" />
+            <p className="text-xl font-semibold text-foreground">
+              파일을 여기에 놓으세요
+            </p>
+            <p className="text-sm text-muted-foreground mt-2">
+              드래그 앤 드롭으로 파일을 업로드할 수 있습니다
+            </p>
+          </div>
+        </div>
+      )}
 
       <header className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
@@ -475,6 +639,26 @@ export function CloudStorage() {
             <span className="hidden sm:inline">삭제</span>
           </Button>
           <div className="ml-auto flex items-center gap-2">
+            <div className="flex items-center gap-1 border border-border rounded-md p-1">
+              <Button
+                variant={viewMode === "list" ? "default" : "ghost"}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setViewMode("list")}
+                title="리스트 뷰"
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === "grid" ? "default" : "ghost"}
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setViewMode("grid")}
+                title="그리드 뷰"
+              >
+                <Grid className="h-4 w-4" />
+              </Button>
+            </div>
             <Checkbox
               id="select-all"
               checked={
@@ -493,21 +677,23 @@ export function CloudStorage() {
         </div>
 
         <div className="rounded-xl border border-border bg-card overflow-hidden">
-          <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-muted/50 border-b border-border text-sm font-medium text-muted-foreground">
-            <div className="col-span-1"></div>
-            <div className="col-span-5">이름</div>
-            <div className="col-span-2">크기</div>
-            <div className="col-span-3">수정일</div>
-            <div className="col-span-1"></div>
-          </div>
-
-          <div className="divide-y divide-border">
-            {currentFiles.length === 0 ? (
-              <div className="px-6 py-12 text-center text-muted-foreground">
-                파일이 없습니다.
+          {viewMode === "list" ? (
+            <>
+              <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-muted/50 border-b border-border text-sm font-medium text-muted-foreground">
+                <div className="col-span-1"></div>
+                <div className="col-span-5">이름</div>
+                <div className="col-span-2">크기</div>
+                <div className="col-span-3">수정일</div>
+                <div className="col-span-1"></div>
               </div>
-            ) : (
-              currentFiles.map((file) => (
+
+              <div className="divide-y divide-border">
+                {currentFiles.length === 0 ? (
+                  <div className="px-6 py-12 text-center text-muted-foreground">
+                    파일이 없습니다.
+                  </div>
+                ) : (
+                  currentFiles.map((file) => (
                 <div
                   key={file.id}
                   className={`px-4 md:px-6 py-4 hover:bg-muted/30 transition-colors ${
@@ -627,9 +813,104 @@ export function CloudStorage() {
                     </div>
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+                  ))
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="p-4 md:p-6">
+              {currentFiles.length === 0 ? (
+                <div className="py-12 text-center text-muted-foreground">
+                  파일이 없습니다.
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {currentFiles.map((file) => (
+                    <div
+                      key={file.id}
+                      className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-all cursor-pointer ${
+                        selectedItems.includes(file.id)
+                          ? "ring-2 ring-primary bg-muted/50"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        file.type === "folder" && handleFolderClick(file)
+                      }
+                    >
+                      <div className="relative w-full aspect-square mb-3 flex items-center justify-center bg-muted/50 rounded-lg overflow-hidden">
+                        {file.type === "folder" ? (
+                          <Folder className="h-12 w-12 text-primary" />
+                        ) : isImageFile(file) ? (
+                          <ThumbnailImage file={file} />
+                        ) : (
+                          <File className="h-12 w-12 text-muted-foreground" />
+                        )}
+                        <div className="absolute top-2 left-2">
+                          <Checkbox
+                            checked={selectedItems.includes(file.id)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setSelectedItems((prev) => [...prev, file.id]);
+                              } else {
+                                setSelectedItems((prev) =>
+                                  prev.filter((id) => id !== file.id)
+                                );
+                              }
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="bg-background/80"
+                          />
+                        </div>
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 bg-background/80 hover:bg-background"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDownloadSingle(file.id);
+                                }}
+                              >
+                                <Download className="mr-2 h-4 w-4" /> 다운로드
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteSingle(file.id);
+                                }}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" /> 삭제
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                      <div className="w-full text-center">
+                        <p className="text-sm font-medium text-foreground truncate" title={file.name}>
+                          {file.name}
+                        </p>
+                        {file.size && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {file.size}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
     </div>
