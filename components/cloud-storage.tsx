@@ -126,6 +126,7 @@ export function CloudStorage() {
   >([{ id: null, name: "내 드라이브" }]);
   const [files, setFiles] = useState<FileItem[]>([]);
   const [parentFolder, setParentFolder] = useState<FileItem | null>(null);
+  const [currentFolder, setCurrentFolder] = useState<FileItem | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string>("");
@@ -211,29 +212,84 @@ export function CloudStorage() {
       }));
 
       setFiles(mapped);
+      
+      // currentParentId가 있으면 현재 폴더 정보 설정 (parentId를 사용하여 추론)
+      if (parentId !== null) {
+        // breadcrumbPath에서 현재 폴더 정보 가져오기
+        const currentCrumb = breadcrumbPath.find((crumb) => crumb.id === parentId);
+        if (currentCrumb) {
+          // breadcrumbPath에서 parentId 찾기
+          const currentIndex = breadcrumbPath.findIndex((crumb) => crumb.id === parentId);
+          const parentCrumb = currentIndex > 0 ? breadcrumbPath[currentIndex - 1] : null;
+          
+          setCurrentFolder({
+            id: parentId,
+            name: currentCrumb.name,
+            type: "folder",
+            size: undefined,
+            modified: "",
+            parentId: parentCrumb?.id ?? null,
+            mimeType: undefined,
+          });
+        }
+      } else {
+        setCurrentFolder(null);
+      }
     } catch (e) {
       console.error("fetchFiles error:", e);
       toast.error("파일을 불러오는 중 오류가 발생했습니다.");
     }
   };
 
-  // breadcrumb에서 부모 폴더 정보 가져오기
+  // breadcrumbPath를 사용하여 상위 폴더 정보 가져오기
   useEffect(() => {
+    // breadcrumbPath가 2개 이상이면 상위 디렉토리가 있음
     if (breadcrumbPath.length > 1) {
       const parentCrumb = breadcrumbPath[breadcrumbPath.length - 2];
-      setParentFolder({
-        id: parentCrumb.id ?? 0,
-        name: parentCrumb.name,
-        type: "folder",
-        size: undefined,
-        modified: "",
-        parentId: breadcrumbPath.length > 2 ? breadcrumbPath[breadcrumbPath.length - 3]?.id ?? null : null,
-        mimeType: undefined,
-      });
+      
+      // 루트 디렉토리는 null이어야 함 (0이 아님)
+      if (parentCrumb.id === null) {
+        setParentFolder({
+          id: -1, // 상위 디렉토리를 나타내는 특별한 ID (null로 이동하기 위해)
+          name: "내 드라이브",
+          type: "folder",
+          size: undefined,
+          modified: "",
+          parentId: null,
+          mimeType: undefined,
+        });
+      } else {
+        // files 배열에서 parentCrumb.id와 일치하는 id를 가진 파일 찾기
+        const parentFile = files.find((f) => f.id === parentCrumb.id && f.type === "folder");
+        
+        if (parentFile) {
+          // 실제 파일 목록에서 찾은 경우 (더 정확한 정보)
+          setParentFolder({
+            id: parentFile.id,
+            name: parentFile.name,
+            type: "folder",
+            size: undefined,
+            modified: parentFile.modified,
+            parentId: parentFile.parentId,
+            mimeType: undefined,
+          });
+        } else {
+          // files 배열에 없으면 breadcrumbPath에서 정보 사용
+          setParentFolder({
+            id: parentCrumb.id,
+            name: parentCrumb.name,
+            type: "folder",
+            size: undefined,
+            modified: "",
+            parentId: breadcrumbPath.length > 2 ? breadcrumbPath[breadcrumbPath.length - 3]?.id ?? null : null,
+            mimeType: undefined,
+          });
+        }
+      }
     } else {
       setParentFolder(null);
     }
-  }, [breadcrumbPath]);
+  }, [files, breadcrumbPath]);
 
   useEffect(() => {
     fetchDriveInfo();
@@ -592,11 +648,12 @@ export function CloudStorage() {
     }
   };
 
-  const handleFileDragStart = (e: React.DragEvent, fileId: number) => {
+  const handleItemDragStart = (e: React.DragEvent, itemId: number, itemType: "file" | "folder") => {
     // 파일 업로드와 구분하기 위해 커스텀 데이터 설정
     e.dataTransfer.effectAllowed = "move";
-    e.dataTransfer.setData("application/x-file-id", String(fileId));
-    setDraggedFileId(fileId);
+    e.dataTransfer.setData("application/x-file-id", String(itemId));
+    e.dataTransfer.setData("application/x-item-type", itemType);
+    setDraggedFileId(itemId);
   };
 
   const handleFileDragEnd = () => {
@@ -604,12 +661,13 @@ export function CloudStorage() {
     setDragOverFolderId(null);
   };
 
-  const handleFolderDragOver = (e: React.DragEvent, folderId: number) => {
+  const handleFolderDragOver = (e: React.DragEvent, folderId: number | null) => {
     // 파일 업로드가 아닌 경우에만 처리
     if (e.dataTransfer.types.includes("application/x-file-id")) {
       e.preventDefault();
       e.stopPropagation();
       e.dataTransfer.dropEffect = "move";
+      // 상위 디렉토리(-1)도 그대로 전달하여 드래그 효과 표시
       setDragOverFolderId(folderId);
     }
   };
@@ -618,32 +676,56 @@ export function CloudStorage() {
     setDragOverFolderId(null);
   };
 
-  const handleFolderDrop = async (e: React.DragEvent, folderId: number) => {
+  const handleFolderDrop = async (e: React.DragEvent, folderId: number | null) => {
     e.preventDefault();
     e.stopPropagation();
     setDragOverFolderId(null);
 
-    const fileIdStr = e.dataTransfer.getData("application/x-file-id");
-    if (!fileIdStr) return;
+    const itemIdStr = e.dataTransfer.getData("application/x-file-id");
+    if (!itemIdStr) return;
 
-    const fileId = Number(fileIdStr);
-    if (isNaN(fileId)) return;
+    const itemId = Number(itemIdStr);
+    if (isNaN(itemId)) return;
 
-    // 자기 자신의 폴더로 이동하는 것 방지
-    if (fileId === folderId) {
+    const itemType = e.dataTransfer.getData("application/x-item-type") as "file" | "folder" | "";
+
+    // 상위 디렉토리로 이동하는 경우 (folderId가 -1이면 null로 이동)
+    const targetParentId = folderId === -1 ? null : folderId;
+
+    // 자기 자신의 폴더로 이동하는 것 방지 (targetParentId가 null이 아닐 때만)
+    if (targetParentId !== null && itemId === targetParentId) {
       toast.error("자기 자신의 폴더로는 이동할 수 없습니다.");
       return;
     }
 
+    // 폴더를 자기 자신의 자식 폴더로 이동하는 것 방지
+    if (itemType === "folder" && targetParentId !== null) {
+      const draggedFolder = files.find((f) => f.id === itemId && f.type === "folder");
+      if (draggedFolder) {
+        // 재귀적으로 자식 폴더인지 확인
+        const isDescendant = (folderId: number, targetId: number): boolean => {
+          const folder = files.find((f) => f.id === folderId);
+          if (!folder || folder.parentId === null) return false;
+          if (folder.parentId === targetId) return true;
+          return isDescendant(folder.parentId, targetId);
+        };
+        
+        if (isDescendant(targetParentId, itemId)) {
+          toast.error("자기 자신의 하위 폴더로는 이동할 수 없습니다.");
+          return;
+        }
+      }
+    }
+
     // 이미 해당 폴더에 있는지 확인
-    const file = files.find((f) => f.id === fileId);
-    if (file && file.parentId === folderId) {
+    const item = files.find((f) => f.id === itemId);
+    if (item && item.parentId === targetParentId) {
       toast.info("이미 해당 폴더에 있습니다.");
       return;
     }
 
     try {
-      await moveFile(fileId, folderId);
+      await moveFile(itemId, targetParentId);
       setDraggedFileId(null);
     } catch (e) {
       // 에러는 moveFile에서 이미 처리됨
@@ -765,36 +847,6 @@ export function CloudStorage() {
           <Progress value={storagePercentage} className="h-2" />
         </div>
 
-        {parentFolder && (
-          <div
-            className={`mb-3 p-3 rounded-lg border border-border bg-muted/30 flex items-center gap-2 transition-colors ${
-              dragOverFolderId === parentFolder.id
-                ? "bg-primary/10 ring-2 ring-primary"
-                : ""
-            }`}
-            onDragOver={(e) => handleFolderDragOver(e, parentFolder.id)}
-            onDragLeave={handleFolderDragLeave}
-            onDrop={(e) => handleFolderDrop(e, parentFolder.id)}
-          >
-            <Folder className="h-4 w-4 text-primary flex-shrink-0" />
-            <button
-              onClick={() => {
-                setCurrentParentId(parentFolder.parentId);
-                setBreadcrumbPath((prev) => {
-                  const newPath = prev.slice(0, -1);
-                  return newPath.length > 0 ? newPath : [{ id: null, name: "내 드라이브" }];
-                });
-                setSelectedItems([]);
-              }}
-              className="text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center gap-1"
-            >
-              <span>←</span>
-              <span>{parentFolder.name}</span>
-            </button>
-            <span className="text-xs text-muted-foreground ml-auto">부모 폴더</span>
-          </div>
-        )}
-
         <div className="mb-4 md:mb-5 flex items-center gap-2 text-sm">
           {breadcrumbPath.map((crumb, idx) => (
             <div key={crumb.id ?? "root"} className="flex items-center gap-2">
@@ -903,6 +955,72 @@ export function CloudStorage() {
               </div>
 
               <div className="divide-y divide-border">
+                {parentFolder && (
+                  <div
+                    className={`px-4 md:px-6 py-4 hover:bg-muted/30 transition-colors ${
+                      dragOverFolderId === parentFolder.id
+                        ? "bg-primary/10 ring-2 ring-primary"
+                        : ""
+                    }`}
+                    onDragOver={(e) => handleFolderDragOver(e, parentFolder.id)}
+                    onDragLeave={handleFolderDragLeave}
+                    onDrop={(e) => handleFolderDrop(e, parentFolder.id)}
+                  >
+                    <div className="md:hidden flex items-start gap-3">
+                      <div className="mt-1 w-5" />
+                      <div className="flex-1 min-w-0">
+                        <button
+                          onClick={() => {
+                            // breadcrumbPath에서 상위 폴더로 이동
+                            if (breadcrumbPath.length > 1) {
+                              const parentCrumb = breadcrumbPath[breadcrumbPath.length - 2];
+                              setCurrentParentId(parentCrumb.id);
+                              setBreadcrumbPath((prev) => prev.slice(0, -1));
+                            } else {
+                              setCurrentParentId(null);
+                              setBreadcrumbPath([{ id: null, name: "내 드라이브" }]);
+                            }
+                            setSelectedItems([]);
+                          }}
+                          className="flex items-center gap-2 mb-1 w-full text-left cursor-pointer"
+                        >
+                          <Folder className="h-5 w-5 text-primary flex-shrink-0" />
+                          <span className="font-medium text-foreground">..</span>
+                        </button>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span>-</span>
+                          <span>-</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
+                      <div className="col-span-1"></div>
+                      <div className="col-span-5 flex items-center gap-3 min-w-0">
+                        <button
+                          onClick={() => {
+                            // breadcrumbPath에서 상위 폴더로 이동
+                            if (breadcrumbPath.length > 1) {
+                              const parentCrumb = breadcrumbPath[breadcrumbPath.length - 2];
+                              setCurrentParentId(parentCrumb.id);
+                              setBreadcrumbPath((prev) => prev.slice(0, -1));
+                            } else {
+                              setCurrentParentId(null);
+                              setBreadcrumbPath([{ id: null, name: "내 드라이브" }]);
+                            }
+                            setSelectedItems([]);
+                          }}
+                          className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer hover:text-primary transition-colors"
+                        >
+                          <Folder className="h-5 w-5 text-primary flex-shrink-0" />
+                          <span className="font-medium text-foreground">..</span>
+                        </button>
+                      </div>
+                      <div className="col-span-2 text-sm text-muted-foreground">-</div>
+                      <div className="col-span-3 text-sm text-muted-foreground">-</div>
+                      <div className="col-span-1"></div>
+                    </div>
+                  </div>
+                )}
                 {currentFiles.length === 0 ? (
                   <div className="px-6 py-12 text-center text-muted-foreground">
                     파일이 없습니다.
@@ -911,8 +1029,8 @@ export function CloudStorage() {
                   currentFiles.map((file) => (
                 <div
                   key={file.id}
-                  draggable={file.type === "file"}
-                  onDragStart={(e) => file.type === "file" && handleFileDragStart(e, file.id)}
+                  draggable={true}
+                  onDragStart={(e) => handleItemDragStart(e, file.id, file.type)}
                   onDragEnd={handleFileDragEnd}
                   className={`px-4 md:px-6 py-4 hover:bg-muted/30 transition-colors ${
                     selectedItems.includes(file.id) ? "bg-muted/50" : ""
@@ -1065,17 +1183,46 @@ export function CloudStorage() {
             </>
           ) : (
             <div className="p-4 md:p-6">
-              {currentFiles.length === 0 ? (
+              {currentFiles.length === 0 && !parentFolder ? (
                 <div className="py-12 text-center text-muted-foreground">
                   파일이 없습니다.
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                  {parentFolder && (
+                    <div
+                      className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-all cursor-pointer ${
+                        dragOverFolderId === parentFolder.id
+                          ? "ring-2 ring-primary bg-primary/10"
+                          : ""
+                      }`}
+                      onDragOver={(e) => handleFolderDragOver(e, parentFolder.id)}
+                      onDragLeave={handleFolderDragLeave}
+                      onDrop={(e) => handleFolderDrop(e, parentFolder.id)}
+                      onClick={() => {
+                        setCurrentParentId(parentFolder.parentId);
+                        setBreadcrumbPath((prev) => {
+                          const newPath = prev.slice(0, -1);
+                          return newPath.length > 0 ? newPath : [{ id: null, name: "내 드라이브" }];
+                        });
+                        setSelectedItems([]);
+                      }}
+                    >
+                      <div className="relative w-full aspect-square mb-3 flex items-center justify-center bg-muted/50 rounded-lg overflow-hidden">
+                        <Folder className="h-12 w-12 text-primary" />
+                      </div>
+                      <div className="w-full text-center">
+                        <p className="text-sm font-medium text-foreground truncate" title="..">
+                          ..
+                        </p>
+                      </div>
+                    </div>
+                  )}
                   {currentFiles.map((file) => (
                     <div
                       key={file.id}
-                      draggable={file.type === "file"}
-                      onDragStart={(e) => file.type === "file" && handleFileDragStart(e, file.id)}
+                      draggable={true}
+                      onDragStart={(e) => handleItemDragStart(e, file.id, file.type)}
                       onDragEnd={handleFileDragEnd}
                       onDragOver={(e) =>
                         file.type === "folder" &&
