@@ -131,15 +131,10 @@ export function CloudStorage() {
   const [usedStorage, setUsedStorage] = useState<number>(0);
   const [totalStorage, setTotalStorage] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
-<<<<<<< HEAD
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const dragCounterRef = useRef<number>(0);
   const storagePercentage = totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
-=======
-  const storagePercentage =
-    totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
->>>>>>> 69e03e8bd10784745eb6f605a649714c9336795a
 
   const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/files`;
   const DRIVE_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/drive`;
@@ -190,6 +185,8 @@ export function CloudStorage() {
         modified?: string;
         modifiedAt?: string;
         parentId?: number | string | null;
+        mimeType?: string;
+        contentType?: string;
       }
 
       let data: ApiFileResponse[] = Array.isArray(raw)
@@ -248,13 +245,7 @@ export function CloudStorage() {
       formData.append("parentId", String(currentParentId));
 
     setIsUploading(true);
-<<<<<<< HEAD
     toast.loading(`${filesToUpload.length}개 파일 업로드 중...`, { id: "upload" });
-=======
-    toast.loading(`${selectedFiles.length}개 파일 업로드 중...`, {
-      id: "upload",
-    });
->>>>>>> 69e03e8bd10784745eb6f605a649714c9336795a
 
     try {
       const uploadUrl = `${BASE}/upload`;
@@ -293,14 +284,8 @@ export function CloudStorage() {
       fetchDriveInfo();
       fetchFiles(currentParentId);
     } catch (e) {
-<<<<<<< HEAD
       console.error("uploadFiles error:", e);
       const errorMessage = e instanceof Error ? e.message : "파일 업로드 중 오류 발생";
-=======
-      console.error("handleFileChange error:", e);
-      const errorMessage =
-        e instanceof Error ? e.message : "파일 업로드 중 오류 발생";
->>>>>>> 69e03e8bd10784745eb6f605a649714c9336795a
       toast.error(errorMessage, { id: "upload" });
     } finally {
       setIsUploading(false);
