@@ -133,6 +133,8 @@ export function CloudStorage() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [draggedFileId, setDraggedFileId] = useState<number | null>(null);
+  const [dragOverFolderId, setDragOverFolderId] = useState<number | null>(null);
   const dragCounterRef = useRef<number>(0);
   const storagePercentage = totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
 
@@ -304,7 +306,14 @@ export function CloudStorage() {
   useEffect(() => {
     const handleWindowDragEnter = (e: DragEvent) => {
       e.preventDefault();
-      if (e.dataTransfer?.types.includes("Files")) {
+      // 실제 파일이 있는지 확인 (파일 리스트 항목 드래그 방지)
+      const hasFiles = e.dataTransfer?.files && e.dataTransfer.files.length > 0;
+      // 또는 dataTransfer.items에서 파일 타입이 있는지 확인
+      const hasFileItems = Array.from(e.dataTransfer?.items || []).some(
+        (item) => item.kind === "file"
+      );
+      
+      if (hasFiles || hasFileItems) {
         dragCounterRef.current += 1;
         if (dragCounterRef.current === 1) {
           setIsDragging(true);
@@ -314,8 +323,16 @@ export function CloudStorage() {
 
     const handleWindowDragOver = (e: DragEvent) => {
       e.preventDefault();
-      if (e.dataTransfer) {
-        e.dataTransfer.dropEffect = "copy";
+      // 실제 파일이 있는 경우에만 dropEffect 설정
+      const hasFiles = e.dataTransfer?.files && e.dataTransfer.files.length > 0;
+      const hasFileItems = Array.from(e.dataTransfer?.items || []).some(
+        (item) => item.kind === "file"
+      );
+      
+      if (hasFiles || hasFileItems) {
+        if (e.dataTransfer) {
+          e.dataTransfer.dropEffect = "copy";
+        }
       }
     };
 
@@ -332,6 +349,7 @@ export function CloudStorage() {
       dragCounterRef.current = 0;
       setIsDragging(false);
 
+      // 실제 파일이 있는지 확인
       const droppedFiles = e.dataTransfer?.files;
       if (droppedFiles && droppedFiles.length > 0) {
         await uploadFiles(droppedFiles);
@@ -506,6 +524,95 @@ export function CloudStorage() {
   };
 
   const handleLogout = () => toast.success("로그아웃되었습니다.");
+
+  const moveFile = async (fileId: number, newParentId: number | null) => {
+    try {
+      const moveUrl = `${BASE}/move`;
+      const res = await fetch(moveUrl, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fileId: fileId,
+          newParentId: newParentId,
+        }),
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const errorMessage =
+          errorData?.message || errorData?.error || `이동 실패 (상태 코드: ${res.status})`;
+        throw new Error(errorMessage);
+      }
+
+      const result = await res.json();
+      toast.success(result?.message || "파일이 이동되었습니다.");
+      fetchFiles(currentParentId);
+    } catch (e) {
+      console.error("moveFile error:", e);
+      const errorMessage = e instanceof Error ? e.message : "파일 이동 중 오류 발생";
+      toast.error(errorMessage);
+      throw e;
+    }
+  };
+
+  const handleFileDragStart = (e: React.DragEvent, fileId: number) => {
+    // 파일 업로드와 구분하기 위해 커스텀 데이터 설정
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("application/x-file-id", String(fileId));
+    setDraggedFileId(fileId);
+  };
+
+  const handleFileDragEnd = () => {
+    setDraggedFileId(null);
+    setDragOverFolderId(null);
+  };
+
+  const handleFolderDragOver = (e: React.DragEvent, folderId: number) => {
+    // 파일 업로드가 아닌 경우에만 처리
+    if (e.dataTransfer.types.includes("application/x-file-id")) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = "move";
+      setDragOverFolderId(folderId);
+    }
+  };
+
+  const handleFolderDragLeave = () => {
+    setDragOverFolderId(null);
+  };
+
+  const handleFolderDrop = async (e: React.DragEvent, folderId: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOverFolderId(null);
+
+    const fileIdStr = e.dataTransfer.getData("application/x-file-id");
+    if (!fileIdStr) return;
+
+    const fileId = Number(fileIdStr);
+    if (isNaN(fileId)) return;
+
+    // 자기 자신의 폴더로 이동하는 것 방지
+    if (fileId === folderId) {
+      toast.error("자기 자신의 폴더로는 이동할 수 없습니다.");
+      return;
+    }
+
+    // 이미 해당 폴더에 있는지 확인
+    const file = files.find((f) => f.id === fileId);
+    if (file && file.parentId === folderId) {
+      toast.info("이미 해당 폴더에 있습니다.");
+      return;
+    }
+
+    try {
+      await moveFile(fileId, folderId);
+      setDraggedFileId(null);
+    } catch (e) {
+      // 에러는 moveFile에서 이미 처리됨
+    }
+  };
 
   const isImageFile = (file: FileItem): boolean => {
     if (file.type === "folder") return false;
@@ -738,8 +845,13 @@ export function CloudStorage() {
                   currentFiles.map((file) => (
                 <div
                   key={file.id}
+                  draggable={file.type === "file"}
+                  onDragStart={(e) => file.type === "file" && handleFileDragStart(e, file.id)}
+                  onDragEnd={handleFileDragEnd}
                   className={`px-4 md:px-6 py-4 hover:bg-muted/30 transition-colors ${
                     selectedItems.includes(file.id) ? "bg-muted/50" : ""
+                  } ${
+                    draggedFileId === file.id ? "opacity-50" : ""
                   }`}
                 >
                   <div className="md:hidden flex items-start gap-3">
@@ -753,8 +865,20 @@ export function CloudStorage() {
                         onClick={() =>
                           file.type === "folder" && handleFolderClick(file)
                         }
+                        onDragOver={(e) =>
+                          file.type === "folder" &&
+                          handleFolderDragOver(e, file.id)
+                        }
+                        onDragLeave={handleFolderDragLeave}
+                        onDrop={(e) =>
+                          file.type === "folder" && handleFolderDrop(e, file.id)
+                        }
                         className={`flex items-center gap-2 mb-1 w-full text-left ${
                           file.type === "folder" ? "cursor-pointer" : ""
+                        } ${
+                          file.type === "folder" && dragOverFolderId === file.id
+                            ? "bg-primary/10 ring-2 ring-primary rounded"
+                            : ""
                         }`}
                       >
                         {file.type === "folder" ? (
@@ -807,9 +931,21 @@ export function CloudStorage() {
                         onClick={() =>
                           file.type === "folder" && handleFolderClick(file)
                         }
+                        onDragOver={(e) =>
+                          file.type === "folder" &&
+                          handleFolderDragOver(e, file.id)
+                        }
+                        onDragLeave={handleFolderDragLeave}
+                        onDrop={(e) =>
+                          file.type === "folder" && handleFolderDrop(e, file.id)
+                        }
                         className={`flex items-center gap-3 min-w-0 flex-1 text-left ${
                           file.type === "folder"
                             ? "cursor-pointer hover:text-primary transition-colors"
+                            : ""
+                        } ${
+                          file.type === "folder" && dragOverFolderId === file.id
+                            ? "bg-primary/10 ring-2 ring-primary rounded px-2 py-1"
                             : ""
                         }`}
                       >
@@ -872,9 +1008,26 @@ export function CloudStorage() {
                   {currentFiles.map((file) => (
                     <div
                       key={file.id}
+                      draggable={file.type === "file"}
+                      onDragStart={(e) => file.type === "file" && handleFileDragStart(e, file.id)}
+                      onDragEnd={handleFileDragEnd}
+                      onDragOver={(e) =>
+                        file.type === "folder" &&
+                        handleFolderDragOver(e, file.id)
+                      }
+                      onDragLeave={handleFolderDragLeave}
+                      onDrop={(e) =>
+                        file.type === "folder" && handleFolderDrop(e, file.id)
+                      }
                       className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-all cursor-pointer ${
                         selectedItems.includes(file.id)
                           ? "ring-2 ring-primary bg-muted/50"
+                          : ""
+                      } ${
+                        draggedFileId === file.id ? "opacity-50" : ""
+                      } ${
+                        file.type === "folder" && dragOverFolderId === file.id
+                          ? "ring-2 ring-primary bg-primary/10"
                           : ""
                       }`}
                       onClick={() =>
