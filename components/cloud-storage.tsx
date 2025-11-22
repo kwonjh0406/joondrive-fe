@@ -125,6 +125,7 @@ export function CloudStorage() {
     { id: number | null; name: string }[]
   >([{ id: null, name: "내 드라이브" }]);
   const [files, setFiles] = useState<FileItem[]>([]);
+  const [parentFolder, setParentFolder] = useState<FileItem | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string>("");
@@ -215,6 +216,24 @@ export function CloudStorage() {
       toast.error("파일을 불러오는 중 오류가 발생했습니다.");
     }
   };
+
+  // breadcrumb에서 부모 폴더 정보 가져오기
+  useEffect(() => {
+    if (breadcrumbPath.length > 1) {
+      const parentCrumb = breadcrumbPath[breadcrumbPath.length - 2];
+      setParentFolder({
+        id: parentCrumb.id ?? 0,
+        name: parentCrumb.name,
+        type: "folder",
+        size: undefined,
+        modified: "",
+        parentId: breadcrumbPath.length > 2 ? breadcrumbPath[breadcrumbPath.length - 3]?.id ?? null : null,
+        mimeType: undefined,
+      });
+    } else {
+      setParentFolder(null);
+    }
+  }, [breadcrumbPath]);
 
   useEffect(() => {
     fetchDriveInfo();
@@ -539,13 +558,30 @@ export function CloudStorage() {
       });
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        const errorMessage =
-          errorData?.message || errorData?.error || `이동 실패 (상태 코드: ${res.status})`;
+        let errorMessage = `이동 실패 (상태 코드: ${res.status})`;
+        try {
+          const text = await res.text();
+          if (text) {
+            const errorData = JSON.parse(text);
+            errorMessage = errorData?.message || errorData?.error || errorMessage;
+          }
+        } catch {
+          // JSON 파싱 실패 시 기본 메시지 사용
+        }
         throw new Error(errorMessage);
       }
 
-      const result = await res.json();
+      // 응답 본문 확인
+      const text = await res.text();
+      let result: any = {};
+      if (text) {
+        try {
+          result = JSON.parse(text);
+        } catch {
+          // JSON이 아닌 경우 빈 객체 사용
+        }
+      }
+
       toast.success(result?.message || "파일이 이동되었습니다.");
       fetchFiles(currentParentId);
     } catch (e) {
@@ -728,6 +764,36 @@ export function CloudStorage() {
           </div>
           <Progress value={storagePercentage} className="h-2" />
         </div>
+
+        {parentFolder && (
+          <div
+            className={`mb-3 p-3 rounded-lg border border-border bg-muted/30 flex items-center gap-2 transition-colors ${
+              dragOverFolderId === parentFolder.id
+                ? "bg-primary/10 ring-2 ring-primary"
+                : ""
+            }`}
+            onDragOver={(e) => handleFolderDragOver(e, parentFolder.id)}
+            onDragLeave={handleFolderDragLeave}
+            onDrop={(e) => handleFolderDrop(e, parentFolder.id)}
+          >
+            <Folder className="h-4 w-4 text-primary flex-shrink-0" />
+            <button
+              onClick={() => {
+                setCurrentParentId(parentFolder.parentId);
+                setBreadcrumbPath((prev) => {
+                  const newPath = prev.slice(0, -1);
+                  return newPath.length > 0 ? newPath : [{ id: null, name: "내 드라이브" }];
+                });
+                setSelectedItems([]);
+              }}
+              className="text-sm font-medium text-foreground hover:text-primary transition-colors flex items-center gap-1"
+            >
+              <span>←</span>
+              <span>{parentFolder.name}</span>
+            </button>
+            <span className="text-xs text-muted-foreground ml-auto">부모 폴더</span>
+          </div>
+        )}
 
         <div className="mb-4 md:mb-5 flex items-center gap-2 text-sm">
           {breadcrumbPath.map((crumb, idx) => (
