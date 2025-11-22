@@ -1,71 +1,83 @@
-"use client"
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent } from "@/components/ui/card"
-import { toast } from "sonner"
-import { Eye, EyeOff, ArrowLeft } from "lucide-react"
-import Link from "next/link"
+import type React from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export function ChangePasswordForm() {
-  const [currentPassword, setCurrentPassword] = useState("")
-  const [newPassword, setNewPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
-  const [showNewPassword, setShowNewPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
-  })
+  });
 
   const validateForm = () => {
     const newErrors = {
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
-    }
+    };
 
     if (!currentPassword) {
-      newErrors.currentPassword = "현재 비밀번호를 입력해주세요."
+      newErrors.currentPassword = "현재 비밀번호를 입력해주세요.";
     }
 
     if (!newPassword) {
-      newErrors.newPassword = "새 비밀번호를 입력해주세요."
+      newErrors.newPassword = "새 비밀번호를 입력해주세요.";
     } else if (newPassword.length < 8) {
-      newErrors.newPassword = "비밀번호는 8자 이상이어야 합니다."
+      newErrors.newPassword = "비밀번호는 8자 이상이어야 합니다.";
     }
 
     if (!confirmPassword) {
-      newErrors.confirmPassword = "새 비밀번호를 다시 입력해주세요."
+      newErrors.confirmPassword = "새 비밀번호를 다시 입력해주세요.";
     } else if (newPassword !== confirmPassword) {
-      newErrors.confirmPassword = "비밀번호가 일치하지 않습니다."
+      newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
     }
 
-    setErrors(newErrors)
-    return !Object.values(newErrors).some((error) => error)
-  }
+    setErrors(newErrors);
+    return !Object.values(newErrors).some((error) => error);
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    if (validateForm()) {
-      toast.success("비밀번호가 성공적으로 변경되었습니다.")
-      setCurrentPassword("")
-      setNewPassword("")
-      setConfirmPassword("")
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // TODO: 실제 API 호출로 교체 필요
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      toast.success("비밀번호가 성공적으로 변경되었습니다.");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
       setErrors({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
-      })
+      });
+    } catch (error) {
+      toast.error("비밀번호 변경 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <Card className="border-border shadow-lg">
@@ -93,9 +105,9 @@ export function ChangePasswordForm() {
                 type={showCurrentPassword ? "text" : "password"}
                 value={currentPassword}
                 onChange={(e) => {
-                  setCurrentPassword(e.target.value)
+                  setCurrentPassword(e.target.value);
                   if (errors.currentPassword) {
-                    setErrors({ ...errors, currentPassword: "" })
+                    setErrors({ ...errors, currentPassword: "" });
                   }
                 }}
                 className={`pr-10 bg-input border-border focus:ring-primary h-11 ${
@@ -125,9 +137,9 @@ export function ChangePasswordForm() {
                 type={showNewPassword ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => {
-                  setNewPassword(e.target.value)
+                  setNewPassword(e.target.value);
                   if (errors.newPassword) {
-                    setErrors({ ...errors, newPassword: "" })
+                    setErrors({ ...errors, newPassword: "" });
                   }
                 }}
                 className={`pr-10 bg-input border-border focus:ring-primary h-11 ${
@@ -157,9 +169,9 @@ export function ChangePasswordForm() {
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => {
-                  setConfirmPassword(e.target.value)
+                  setConfirmPassword(e.target.value);
                   if (errors.confirmPassword) {
-                    setErrors({ ...errors, confirmPassword: "" })
+                    setErrors({ ...errors, confirmPassword: "" });
                   }
                 }}
                 className={`pr-10 bg-input border-border focus:ring-primary h-11 ${
@@ -182,8 +194,16 @@ export function ChangePasswordForm() {
           <Button
             type="submit"
             className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 mt-2"
+            disabled={isLoading}
           >
-            비밀번호 변경
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                변경 중...
+              </>
+            ) : (
+              "비밀번호 변경"
+            )}
           </Button>
         </form>
       </CardContent>

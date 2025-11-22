@@ -2,7 +2,6 @@
 
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
-// import { api } from "@/lib/axios"  // removed — using hardcoded fetch
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -132,10 +131,15 @@ export function CloudStorage() {
   const [usedStorage, setUsedStorage] = useState<number>(0);
   const [totalStorage, setTotalStorage] = useState<number>(0);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+<<<<<<< HEAD
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const dragCounterRef = useRef<number>(0);
   const storagePercentage = totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
+=======
+  const storagePercentage =
+    totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
+>>>>>>> 69e03e8bd10784745eb6f605a649714c9336795a
 
   const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/files`;
   const DRIVE_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/drive`;
@@ -144,18 +148,18 @@ export function CloudStorage() {
     try {
       const url = `${DRIVE_BASE}/me`;
       const res = await fetch(url, { method: "GET", credentials: "include" });
-      
+
       if (!res.ok) {
         throw new Error(`drive info status ${res.status}`);
       }
 
       const response = await res.json();
-      
+
       // ApiResponse 구조: { success, message, data }
       // data 구조: { email, usedStorage (바이트), storageLimit (GB) }
       if (response.success && response.data) {
         const { email, usedStorage: usedBytes, storageLimit } = response.data;
-        
+
         setUserEmail(email || "");
         // usedStorage를 바이트에서 GB로 변환 (1024^3 = 1073741824)
         const usedStorageGB = usedBytes ? usedBytes / (1024 * 1024 * 1024) : 0;
@@ -174,24 +178,33 @@ export function CloudStorage() {
       if (parentId != null)
         url += `?parentId=${encodeURIComponent(String(parentId))}`;
 
-      console.log("fetchFiles url:", url);
       const res = await fetch(url, { method: "GET", credentials: "include" });
       const raw = await res.json();
 
       // If response is wrapper object, attempt to extract array
-      let data: any[] = Array.isArray(raw)
+      interface ApiFileResponse {
+        id: number | string;
+        name?: string;
+        fileType?: string;
+        size?: number;
+        modified?: string;
+        modifiedAt?: string;
+        parentId?: number | string | null;
+      }
+
+      let data: ApiFileResponse[] = Array.isArray(raw)
         ? raw
         : raw?.data ?? raw?.items ?? raw?.files ?? null;
       if (!Array.isArray(data)) {
         const maybe = Object.values(raw || {}).find((v) => Array.isArray(v));
-        data = Array.isArray(maybe) ? (maybe as any[]) : [];
+        data = Array.isArray(maybe) ? (maybe as ApiFileResponse[]) : [];
       }
 
-      const mapped: FileItem[] = data.map((f: any) => ({
+      const mapped: FileItem[] = data.map((f: ApiFileResponse) => ({
         id: Number(f.id),
         name: f.name ?? "Unknown",
         type: f.fileType === "folder" ? "folder" : "file",
-        size: f.size != null ? String(f.size) : undefined,
+        size: f.size != null ? formatFileSize(Number(f.size)) : undefined,
         modified: f.modified ?? f.modifiedAt ?? "",
         parentId: f.parentId != null ? Number(f.parentId) : null,
         mimeType: f.mimeType ?? f.contentType ?? undefined,
@@ -235,7 +248,13 @@ export function CloudStorage() {
       formData.append("parentId", String(currentParentId));
 
     setIsUploading(true);
+<<<<<<< HEAD
     toast.loading(`${filesToUpload.length}개 파일 업로드 중...`, { id: "upload" });
+=======
+    toast.loading(`${selectedFiles.length}개 파일 업로드 중...`, {
+      id: "upload",
+    });
+>>>>>>> 69e03e8bd10784745eb6f605a649714c9336795a
 
     try {
       const uploadUrl = `${BASE}/upload`;
@@ -244,13 +263,17 @@ export function CloudStorage() {
         body: formData,
         credentials: "include",
       });
-      
+
       if (!res.ok) {
         // 백엔드에서 반환하는 에러 메시지 추출
         let errorMessage = `업로드 실패 (상태 코드: ${res.status})`;
         try {
           const errorData = await res.json();
-          errorMessage = errorData?.message || errorData?.error || errorData?.data?.message || errorMessage;
+          errorMessage =
+            errorData?.message ||
+            errorData?.error ||
+            errorData?.data?.message ||
+            errorMessage;
         } catch {
           // JSON 파싱 실패 시 기본 메시지 사용
         }
@@ -270,8 +293,14 @@ export function CloudStorage() {
       fetchDriveInfo();
       fetchFiles(currentParentId);
     } catch (e) {
+<<<<<<< HEAD
       console.error("uploadFiles error:", e);
       const errorMessage = e instanceof Error ? e.message : "파일 업로드 중 오류 발생";
+=======
+      console.error("handleFileChange error:", e);
+      const errorMessage =
+        e instanceof Error ? e.message : "파일 업로드 중 오류 발생";
+>>>>>>> 69e03e8bd10784745eb6f605a649714c9336795a
       toast.error(errorMessage, { id: "upload" });
     } finally {
       setIsUploading(false);
@@ -421,9 +450,18 @@ export function CloudStorage() {
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
+    const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
+    const size = bytes / Math.pow(k, i);
+    
+    // 소수점 처리: 1보다 작으면 소수점 2자리, 그 외에는 소수점 1자리
+    const formattedSize = size < 1 
+      ? size.toFixed(2) 
+      : size >= 100 
+      ? Math.round(size).toString()
+      : size.toFixed(1);
+    
+    return `${formattedSize} ${sizes[i]}`;
   };
 
   const handleDownload = () => {
@@ -443,9 +481,28 @@ export function CloudStorage() {
 
       const blob = await res.blob();
       const contentDisposition = res.headers.get("content-disposition");
-      const fileName =
-        contentDisposition?.split("filename=")[1]?.replace(/"/g, "") ||
-        `file-${fileId}`;
+      
+      // 파일명 추출 (Content-Disposition 헤더에서)
+      let fileName = "";
+      if (contentDisposition) {
+        // filename*=UTF-8'' 형식 처리 (한글 파일명)
+        const utf8Match = contentDisposition.match(/filename\*=UTF-8''(.+)/i);
+        if (utf8Match) {
+          fileName = decodeURIComponent(utf8Match[1]);
+        } else {
+          // 일반 filename="파일명" 형식 처리
+          const match = contentDisposition.match(/filename="?([^";]+)"?/i);
+          if (match) {
+            fileName = match[1];
+          }
+        }
+      }
+      
+      // 백엔드에서 파일명을 보내지 않은 경우, 파일 목록에서 찾기
+      if (!fileName) {
+        const file = files.find((f) => f.id === fileId);
+        fileName = file?.name || `file-${fileId}`;
+      }
 
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -504,7 +561,7 @@ export function CloudStorage() {
         <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
           <div className="flex items-center gap-3 md:gap-4 flex-1 max-w-2xl min-w-0">
             <h1 className="text-xl font-bold text-foreground hidden md:block whitespace-nowrap">
-              Joon Drive
+              드라이브
             </h1>
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
@@ -725,7 +782,9 @@ export function CloudStorage() {
                         </span>
                       </button>
                       <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        {file.size && <span>{file.size}</span>}
+                        {file.type === "file" && file.size && (
+                          <span>{file.size}</span>
+                        )}
                         <span>{file.modified}</span>
                       </div>
                     </div>
@@ -780,7 +839,7 @@ export function CloudStorage() {
                       </button>
                     </div>
                     <div className="col-span-2 text-sm text-muted-foreground">
-                      {file.size || "-"}
+                      {file.type === "file" ? file.size || "-" : "-"}
                     </div>
                     <div className="col-span-3 text-sm text-muted-foreground">
                       {file.modified}

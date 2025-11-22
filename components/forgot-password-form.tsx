@@ -1,8 +1,8 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { CheckCircle2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function ForgotPasswordForm() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -96,8 +97,8 @@ export function ForgotPasswordForm() {
 
     // 로그인 페이지로 이동
     setTimeout(() => {
-      window.location.href = "/login";
-    }, 2000);
+      router.push("/login");
+    }, 1500);
   };
 
   return (
@@ -170,7 +171,7 @@ export function ForgotPasswordForm() {
             {!isEmailSent && (
               <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-accent text-primary-foreground font-medium h-12 transition-all mt-2"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-12 transition-all mt-2"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -215,7 +216,7 @@ export function ForgotPasswordForm() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-primary hover:bg-accent text-primary-foreground font-medium h-12 transition-all animate-in fade-in slide-in-from-bottom-2 duration-500"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-12 transition-all animate-in fade-in slide-in-from-bottom-2 duration-500"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -238,7 +239,7 @@ export function ForgotPasswordForm() {
           </span>
           <a
             href="/login"
-            className="text-primary hover:text-accent transition-colors font-medium"
+            className="text-primary hover:text-primary/80 transition-colors font-medium"
           >
             로그인
           </a>
