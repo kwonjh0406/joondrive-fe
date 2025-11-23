@@ -144,6 +144,7 @@ export function CloudStorage() {
   const [dragOverFolderId, setDragOverFolderId] = useState<number | null>(null);
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
+  const [isLoadingFiles, setIsLoadingFiles] = useState<boolean>(false);
   const dragCounterRef = useRef<number>(0);
   const storagePercentage = totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
 
@@ -179,6 +180,7 @@ export function CloudStorage() {
   };
 
   const fetchFiles = async (parentId: number | null) => {
+    setIsLoadingFiles(true);
     try {
       let url = BASE;
       if (parentId != null)
@@ -245,6 +247,8 @@ export function CloudStorage() {
     } catch (e) {
       console.error("fetchFiles error:", e);
       toast.error("파일을 불러오는 중 오류가 발생했습니다.");
+    } finally {
+      setIsLoadingFiles(false);
     }
   };
 
@@ -366,6 +370,7 @@ export function CloudStorage() {
       setSortOrder("asc");
     }
   };
+
 
   const toggleSelectItem = (id: number) => {
     setSelectedItems((prev) =>
@@ -555,6 +560,8 @@ export function CloudStorage() {
   };
 
   const handleFolderClick = (folder: FileItem) => {
+    // 로딩 시작 전에 파일 목록을 비워서 이전 파일들이 보이지 않도록 함
+    setFiles([]);
     setCurrentParentId(folder.id);
     setBreadcrumbPath((prev) => [
       ...prev,
@@ -565,6 +572,8 @@ export function CloudStorage() {
   };
 
   const handleBreadcrumbClick = (id: number | null, index: number) => {
+    // 로딩 시작 전에 파일 목록을 비워서 이전 파일들이 보이지 않도록 함
+    setFiles([]);
     setCurrentParentId(id);
     setBreadcrumbPath((prev) => prev.slice(0, index + 1));
     setSelectedItems([]);
@@ -867,6 +876,8 @@ export function CloudStorage() {
 
   // 상위 폴더로 이동하는 함수
   const navigateToParent = () => {
+    // 로딩 시작 전에 파일 목록을 비워서 이전 파일들이 보이지 않도록 함
+    setFiles([]);
     if (breadcrumbPath.length > 1) {
       const parentCrumb = breadcrumbPath[breadcrumbPath.length - 2];
       setCurrentParentId(parentCrumb.id);
@@ -1307,7 +1318,11 @@ export function CloudStorage() {
                       </div>
                   </div>
                 )}
-                {currentFiles.length === 0 ? (
+                {isLoadingFiles ? (
+                  <div className="px-6 py-12 flex items-center justify-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                  </div>
+                ) : currentFiles.length === 0 ? (
                   <div className="px-6 py-12 text-center text-muted-foreground">
                     파일이 없습니다.
                   </div>
@@ -1430,7 +1445,33 @@ export function CloudStorage() {
             </>
           ) : (
             <div className="p-4 md:p-6">
-              {currentFiles.length === 0 && !parentFolder ? (
+              {/* 그리드 뷰 전체 선택 헤더 */}
+              <div className="mb-4 md:mb-5 px-2 border-b border-border pb-3 flex items-center justify-between gap-3">
+                <Button
+                  variant={
+                    currentFiles.length > 0 &&
+                    selectedItems.length === currentFiles.length
+                      ? "default"
+                      : "ghost"
+                  }
+                  size="sm"
+                  onClick={selectAll}
+                  disabled={currentFiles.length === 0}
+                  className="h-8 px-3 text-sm font-medium"
+                >
+                  전체 선택
+                </Button>
+                {selectedItems.length > 0 && (
+                  <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                    {selectedItems.length}개 선택됨
+                  </span>
+                )}
+              </div>
+              {isLoadingFiles ? (
+                <div className="py-12 flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : currentFiles.length === 0 && !parentFolder ? (
                 <div className="py-12 text-center text-muted-foreground">
                   파일이 없습니다.
                 </div>
