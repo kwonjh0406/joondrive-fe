@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 /**
- * 인증이 필요한 페이지 접근 시 세션을 검증하는 함수
+ * 인증이 필요한 페이지 접근 시 세션을 검증하는 프록시
  * 세션 쿠키가 없거나 검증 실패 시 로그인 페이지로 리다이렉트
  */
 export async function proxy(req: NextRequest) {
@@ -40,3 +40,4 @@ export async function proxy(req: NextRequest) {
 export const config = {
   matcher: ["/account-settings"],
 };
+

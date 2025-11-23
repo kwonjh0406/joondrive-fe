@@ -83,7 +83,7 @@ joondrive-fe/
 │   └── account-settings/  # 계정 설정 페이지
 ├── components/            # React 컴포넌트
 ├── lib/                   # 유틸리티 함수
-├── proxy.tsx              # 인증 프록시
+├── proxy.ts               # 인증 프록시
 └── public/                # 정적 파일
 ```
 
