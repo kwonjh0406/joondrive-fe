@@ -90,13 +90,20 @@ export function ChangePasswordForm() {
             <ArrowLeft className="h-4 w-4" />
             뒤로 가기
           </Link>
-          <h1 className="text-2xl font-bold text-foreground mb-2">비밀번호 변경</h1>
-          <p className="text-sm text-muted-foreground">새로운 비밀번호로 변경하세요</p>
+          <h1 className="text-2xl font-bold text-foreground mb-2">
+            비밀번호 변경
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            새로운 비밀번호로 변경하세요
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="currentPassword" className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor="currentPassword"
+              className="text-sm font-medium text-foreground"
+            >
               현재 비밀번호
             </Label>
             <div className="relative">
@@ -121,14 +128,25 @@ export function ChangePasswordForm() {
                 onClick={() => setShowCurrentPassword(!showCurrentPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
-                {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showCurrentPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
-            {errors.currentPassword && <p className="text-sm text-destructive">{errors.currentPassword}</p>}
+            {errors.currentPassword && (
+              <p className="text-sm text-destructive">
+                {errors.currentPassword}
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="newPassword" className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor="newPassword"
+              className="text-sm font-medium text-foreground"
+            >
               새 비밀번호
             </Label>
             <div className="relative">
@@ -153,14 +171,23 @@ export function ChangePasswordForm() {
                 onClick={() => setShowNewPassword(!showNewPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
-                {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showNewPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
-            {errors.newPassword && <p className="text-sm text-destructive">{errors.newPassword}</p>}
+            {errors.newPassword && (
+              <p className="text-sm text-destructive">{errors.newPassword}</p>
+            )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
+            <Label
+              htmlFor="confirmPassword"
+              className="text-sm font-medium text-foreground"
+            >
               새 비밀번호 재입력
             </Label>
             <div className="relative">
@@ -185,15 +212,23 @@ export function ChangePasswordForm() {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
-                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
-            {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
+            {errors.confirmPassword && (
+              <p className="text-sm text-destructive">
+                {errors.confirmPassword}
+              </p>
+            )}
           </div>
 
           <Button
             type="submit"
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 mt-2"
+            className="w-full h-12 mt-2"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -208,5 +243,5 @@ export function ChangePasswordForm() {
         </form>
       </CardContent>
     </Card>
-  )
+  );
 }

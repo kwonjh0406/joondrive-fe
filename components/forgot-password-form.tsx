@@ -171,7 +171,7 @@ export function ForgotPasswordForm() {
             {!isEmailSent && (
               <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-12 transition-all mt-2"
+                className="w-full h-12 mt-2"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -216,7 +216,7 @@ export function ForgotPasswordForm() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-12 transition-all animate-in fade-in slide-in-from-bottom-2 duration-500"
+                  className="w-full h-12 mt-2 animate-in fade-in slide-in-from-bottom-2 duration-500"
                   disabled={isLoading}
                 >
                   {isLoading ? (

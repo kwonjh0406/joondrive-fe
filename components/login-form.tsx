@@ -180,7 +180,7 @@ export function LoginForm() {
 
           <Button
             type="submit"
-            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-12 mt-2"
+            className="w-full h-12 mt-2"
             disabled={isLoading}
           >
             {isLoading ? "로그인 중..." : "로그인"}

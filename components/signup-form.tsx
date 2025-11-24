@@ -74,18 +74,19 @@ export function SignupForm() {
       toast.success("이메일로 인증번호가 발송되었습니다.");
     } catch (err: unknown) {
       console.error(err);
-      const status = (err as { response?: { status?: number } })?.response?.status;
+      const status = (err as { response?: { status?: number } })?.response
+        ?.status;
       if (status === 409) {
         toast.error("이미 가입된 이메일입니다.");
       } else {
-      const errorResponse = err as {
-        response?: { data?: { message?: string } | string };
-      };
-      const errorMessage =
-        (typeof errorResponse?.response?.data === "object"
-          ? errorResponse.response.data?.message
-          : errorResponse?.response?.data) || "이메일 발송에 실패했습니다.";
-      toast.error(errorMessage);
+        const errorResponse = err as {
+          response?: { data?: { message?: string } | string };
+        };
+        const errorMessage =
+          (typeof errorResponse?.response?.data === "object"
+            ? errorResponse.response.data?.message
+            : errorResponse?.response?.data) || "이메일 발송에 실패했습니다.";
+        toast.error(errorMessage);
       }
     } finally {
       setIsLoading(false);
@@ -206,7 +207,7 @@ export function SignupForm() {
             {!isEmailSent && (
               <Button
                 type="submit"
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-12 transition-all mt-2"
+                className="w-full h-12 mt-2"
                 disabled={isLoading}
               >
                 {isLoading ? (
@@ -252,7 +253,7 @@ export function SignupForm() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-12 transition-all animate-in fade-in slide-in-from-bottom-2 duration-500"
+                  className="w-full h-12 mt-2 animate-in fade-in slide-in-from-bottom-2 duration-500"
                   disabled={isLoading}
                 >
                   {isLoading ? (

@@ -11,9 +11,9 @@
   --popover: hsl(0 0% 100%);
   --popover-foreground: oklch(0.25 0.02 264);
   /* primary를 더 진한 파란색으로 변경하여 배경과 대비 강화 */
-  --primary: hsl(215 45% 32%);
+  --primary: #202632;
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(215 15% 93%);
+  --secondary: #0064ff;
   --secondary-foreground: oklch(0.25 0.02 264);
   --muted: hsl(215 15% 93%);
   --muted-foreground: oklch(0.55 0.01 264);
