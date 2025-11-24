@@ -31,6 +31,8 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  FolderPlus,
+  Inbox,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -792,7 +794,7 @@ export function CloudStorage() {
   };
 
   const checkboxStyles =
-    "h-5 w-5 border-2 border-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all hover:border-foreground/60";
+    "h-5 w-5 border border-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all hover:border-foreground/60";
   const fileRowStyles = "px-4 md:px-6 py-4 transition-colors";
 
   const navigateToParent = () => {
@@ -840,6 +842,69 @@ export function CloudStorage() {
       );
     }
     return file.mimeType.startsWith("image/");
+  };
+
+  // 파일 타입별 아이콘 색상 반환
+  const getFileIconColor = (file: FileItem): string => {
+    if (file.type === "folder") {
+      return "text-yellow-500"; // 폴더는 노란색
+    }
+
+    const ext = file.name.split(".").pop()?.toLowerCase() || "";
+    const mimeType = file.mimeType?.toLowerCase() || "";
+
+    // 이미지 파일
+    if (
+      mimeType.startsWith("image/") ||
+      ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg", "ico"].includes(ext)
+    ) {
+      return "text-blue-500";
+    }
+
+    // 비디오 파일
+    if (
+      mimeType.startsWith("video/") ||
+      ["mp4", "avi", "mov", "wmv", "flv", "webm", "mkv", "m4v"].includes(ext)
+    ) {
+      return "text-purple-500";
+    }
+
+    // 오디오 파일
+    if (
+      mimeType.startsWith("audio/") ||
+      ["mp3", "wav", "flac", "aac", "ogg", "wma", "m4a"].includes(ext)
+    ) {
+      return "text-green-500";
+    }
+
+    // 문서 파일
+    if (
+      mimeType.includes("pdf") ||
+      mimeType.includes("document") ||
+      mimeType.includes("word") ||
+      ["pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "rtf"].includes(ext)
+    ) {
+      return "text-red-500";
+    }
+
+    // 압축 파일
+    if (
+      mimeType.includes("zip") ||
+      mimeType.includes("rar") ||
+      ["zip", "rar", "7z", "tar", "gz", "bz2"].includes(ext)
+    ) {
+      return "text-orange-500";
+    }
+
+    // 코드 파일
+    if (
+      ["js", "ts", "jsx", "tsx", "html", "css", "json", "xml", "py", "java", "cpp", "c", "go", "rs"].includes(ext)
+    ) {
+      return "text-indigo-500";
+    }
+
+    // 기본 색상 (회색)
+    return "text-muted-foreground";
   };
 
   return (
@@ -1190,7 +1255,7 @@ export function CloudStorage() {
                             true
                           )}`}
                         >
-                          <Folder className="h-5 w-5 text-primary flex-shrink-0" />
+                          <Folder className="h-6 w-6 text-yellow-500 flex-shrink-0" />
                           <span className="font-medium text-foreground">
                             ../{parentFolder.name}
                           </span>
@@ -1208,7 +1273,7 @@ export function CloudStorage() {
                              false
                            )}`}
                          >
-                           <Folder className="h-5 w-5 text-primary flex-shrink-0" />
+                           <Folder className="h-6 w-6 text-yellow-500 flex-shrink-0" />
                            <span className="font-medium text-foreground truncate">
                              ../{parentFolder.name}
                            </span>
@@ -1228,8 +1293,38 @@ export function CloudStorage() {
                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                   </div>
                 ) : currentFiles.length === 0 ? (
-                  <div className="px-6 py-12 text-center text-muted-foreground">
-                    파일이 없습니다.
+                  <div className="px-6 py-16 md:py-20 flex flex-col items-center justify-center text-center">
+                    <div className="mb-6 p-6 rounded-full bg-muted/50">
+                      <Inbox className="h-16 w-16 text-muted-foreground" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      파일이 없습니다
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-6 max-w-md">
+                      파일을 업로드하거나 새 폴더를 만들어 시작해보세요
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <Button
+                        onClick={handleUpload}
+                        disabled={isUploading}
+                        className="gap-2"
+                      >
+                        {isUploading ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Upload className="h-4 w-4" />
+                        )}
+                        <span>파일 업로드</span>
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={handleCreateFolder}
+                        className="gap-2"
+                      >
+                        <FolderPlus className="h-4 w-4" />
+                        <span>새 폴더</span>
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   currentFiles.map((file, index) => (
@@ -1272,9 +1367,9 @@ export function CloudStorage() {
                             }`}
                           >
                             {file.type === "folder" ? (
-                              <Folder className="h-5 w-5 text-primary flex-shrink-0" />
+                              <Folder className="h-6 w-6 text-yellow-500 flex-shrink-0" />
                             ) : (
-                              <File className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                              <File className={`h-6 w-6 ${getFileIconColor(file)} flex-shrink-0`} />
                             )}
                             <span
                               className={`font-medium truncate ${
@@ -1326,9 +1421,9 @@ export function CloudStorage() {
                             }`}
                           >
                             {file.type === "folder" ? (
-                              <Folder className="h-5 w-5 text-primary flex-shrink-0" />
+                              <Folder className="h-6 w-6 text-yellow-500 flex-shrink-0" />
                             ) : (
-                              <File className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                              <File className={`h-6 w-6 ${getFileIconColor(file)} flex-shrink-0`} />
                             )}
                             <span
                               className={`font-medium truncate ${
@@ -1394,8 +1489,38 @@ export function CloudStorage() {
                   <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                 </div>
               ) : currentFiles.length === 0 && !parentFolder ? (
-                <div className="py-12 text-center text-muted-foreground">
-                  파일이 없습니다.
+                <div className="py-16 md:py-20 flex flex-col items-center justify-center text-center">
+                  <div className="mb-6 p-6 rounded-full bg-muted/50">
+                    <Inbox className="h-16 w-16 text-muted-foreground" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    파일이 없습니다
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-6 max-w-md">
+                    파일을 업로드하거나 새 폴더를 만들어 시작해보세요
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Button
+                      onClick={handleUpload}
+                      disabled={isUploading}
+                      className="gap-2"
+                    >
+                      {isUploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4" />
+                      )}
+                      <span>파일 업로드</span>
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={handleCreateFolder}
+                      className="gap-2"
+                    >
+                      <FolderPlus className="h-4 w-4" />
+                      <span>새 폴더</span>
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
@@ -1414,7 +1539,7 @@ export function CloudStorage() {
                       onClick={navigateToParent}
                     >
                       <div className="relative w-full aspect-square mb-3 flex items-center justify-center bg-muted/50 rounded-lg overflow-hidden">
-                        <Folder className="h-12 w-12 text-primary" />
+                        <Folder className="h-12 w-12 text-yellow-500" />
                       </div>
                       <div className="w-full text-center">
                         <p
@@ -1442,7 +1567,7 @@ export function CloudStorage() {
                       onDrop={(e) =>
                         file.type === "folder" && handleFolderDrop(e, file.id)
                       }
-                      className={`group relative flex flex-col items-center p-4 rounded-lg border-2 border-border bg-card transition-all cursor-pointer ${
+                      className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card transition-all cursor-pointer ${
                         selectedItems.includes(file.id)
                           ? "bg-primary/20 border-primary/50"
                           : "hover:bg-muted/30 hover:border-primary/30"
@@ -1458,11 +1583,11 @@ export function CloudStorage() {
                     >
                       <div className="relative w-full aspect-square mb-3 flex items-center justify-center bg-muted/50 rounded-lg overflow-hidden">
                         {file.type === "folder" ? (
-                          <Folder className="h-12 w-12 text-primary" />
+                          <Folder className="h-12 w-12 text-yellow-500" />
                         ) : isImageFile(file) ? (
                           <ThumbnailImage file={file} />
                         ) : (
-                          <File className="h-12 w-12 text-muted-foreground" />
+                          <File className={`h-12 w-12 ${getFileIconColor(file)}`} />
                         )}
                         <div className="absolute top-2 left-2 z-10">
                           <Checkbox

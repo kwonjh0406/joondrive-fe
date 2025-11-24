@@ -1,7 +1,19 @@
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 export default function TermsPage() {
   return (
     <div className="flex flex-col items-center flex-1 p-4 bg-background">
       <div className="w-full max-w-4xl md:mt-8 mt-4">
+        <div className="mb-6">
+          <Link href="/">
+            <Button variant="ghost" className="gap-2 mb-4">
+              <ArrowLeft className="h-4 w-4" />
+              <span>홈으로</span>
+            </Button>
+          </Link>
+        </div>
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">이용약관</h1>
           <p className="text-muted-foreground">최종 수정일: {new Date().toLocaleDateString('ko-KR')}</p>
