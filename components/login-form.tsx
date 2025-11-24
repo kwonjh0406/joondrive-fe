@@ -1,6 +1,5 @@
 "use client";
 
-import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -11,60 +10,91 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
 import Link from "next/link";
 
-/**
- * 로그인 폼 컴포넌트
- * 이메일과 비밀번호를 입력받아 백엔드 서버에 인증 요청
- */
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`;
+
+const MESSAGES = {
+  EMPTY_FIELDS: "이메일과 비밀번호를 입력해주세요.",
+  INVALID_EMAIL: "올바른 이메일 형식을 입력해주세요.",
+  INVALID_PASSWORD:
+    "비밀번호는 8자 이상이며, 숫자, 영문, 특수문자를 각각 최소 1개 이상 포함해야 합니다.",
+  INVALID_CREDENTIALS: "이메일 또는 비밀번호가 올바르지 않습니다.",
+  SERVER_ERROR: "로그인 중 문제가 발생했습니다.",
+  NETWORK_ERROR: "서버와 연결할 수 없습니다.",
+  SUCCESS: "환영합니다!",
+} as const;
+
+const validateEmail = (email: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+const validatePassword = (password: string) => {
+  if (password.length < 8) return false;
+  return (
+    /\d/.test(password) &&
+    /[a-zA-Z]/.test(password) &&
+    /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+  );
+};
+
+const validateForm = (email: string, password: string): string | null => {
+  if (!email || !password) return MESSAGES.EMPTY_FIELDS;
+  if (!validateEmail(email)) return MESSAGES.INVALID_EMAIL;
+  if (!validatePassword(password)) return MESSAGES.INVALID_PASSWORD;
+  return null;
+};
+
+const handleError = (status: number): string => {
+  if (status === 401) return MESSAGES.INVALID_CREDENTIALS;
+  return MESSAGES.SERVER_ERROR;
+};
+
 export function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const clearError = () => setError(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    clearError();
 
-    // 입력값 검증
-    if (!email || !password) {
-      toast.error("이메일과 비밀번호를 입력해주세요.");
+    const validationError = validateForm(email, password);
+    if (validationError) {
+      setError(validationError);
+      toast.error(validationError);
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Spring Security에서 인식하기 위해 x-www-form-urlencoded 형식 사용
       const formData = new URLSearchParams();
-      formData.append("email", email);
+      formData.append("email", email.trim());
       formData.append("password", password);
-      if (rememberMe) {
-        formData.append("rememberMe", "on");
-      }
+      if (rememberMe) formData.append("rememberMe", "on");
 
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          credentials: "include", // 세션 쿠키 유지
-          body: formData.toString(),
-        }
-      );
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        credentials: "include",
+        body: formData.toString(),
+      });
 
-      // 응답 처리
       if (res.ok) {
-        toast.success("환영합니다!");
+        toast.success(MESSAGES.SUCCESS);
         router.push("/");
-      } else if (res.status === 401) {
-        toast.error("이메일 또는 비밀번호가 올바르지 않습니다.");
+        router.refresh();
       } else {
-        toast.error("로그인 중 문제가 발생했습니다.");
+        const errorMsg = handleError(res.status);
+        setError(errorMsg);
+        toast.error(errorMsg);
       }
-    } catch (error) {
-      toast.error("서버와 연결할 수 없습니다.");
+    } catch {
+      setError(MESSAGES.NETWORK_ERROR);
+      toast.error(MESSAGES.NETWORK_ERROR);
     } finally {
       setIsLoading(false);
     }
@@ -72,8 +102,17 @@ export function LoginForm() {
 
   return (
     <Card className="border-border shadow-lg">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} noValidate>
         <CardContent className="pt-8 px-6 md:px-8 space-y-6">
+          {error && (
+            <div
+              role="alert"
+              className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md"
+            >
+              {error}
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label
               htmlFor="email"
@@ -85,9 +124,13 @@ export function LoginForm() {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                clearError();
+              }}
               className="bg-input border-border focus:ring-primary h-11"
               autoComplete="email"
+              aria-invalid={!!error}
             />
           </div>
 
@@ -101,11 +144,14 @@ export function LoginForm() {
             <Input
               id="password"
               type="password"
-              placeholder=""
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                clearError();
+              }}
               className="bg-input border-border focus:ring-primary h-11"
               autoComplete="current-password"
+              aria-invalid={!!error}
             />
           </div>
 
@@ -114,7 +160,7 @@ export function LoginForm() {
               <Checkbox
                 id="remember"
                 checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                onCheckedChange={(checked) => setRememberMe(checked === true)}
                 className="border-border data-[state=checked]:bg-primary"
               />
               <Label
@@ -124,7 +170,6 @@ export function LoginForm() {
                 자동 로그인
               </Label>
             </div>
-
             <Link
               href="/forgot-password"
               className="text-sm text-primary hover:text-accent transition-colors"

@@ -131,7 +131,6 @@ export function CloudStorage() {
   >([{ id: null, name: "내 드라이브" }]);
   const [files, setFiles] = useState<FileItem[]>([]);
   const [parentFolder, setParentFolder] = useState<FileItem | null>(null);
-  const [currentFolder, setCurrentFolder] = useState<FileItem | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [userEmail, setUserEmail] = useState<string>("");
@@ -146,7 +145,8 @@ export function CloudStorage() {
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
   const [isLoadingFiles, setIsLoadingFiles] = useState<boolean>(false);
   const dragCounterRef = useRef<number>(0);
-  const storagePercentage = totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
+  const storagePercentage =
+    totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
 
   const BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/files`;
   const DRIVE_BASE = `${process.env.NEXT_PUBLIC_API_URL}/api/drive`;
@@ -221,29 +221,6 @@ export function CloudStorage() {
       }));
 
       setFiles(mapped);
-      
-      // currentParentId가 있으면 현재 폴더 정보 설정 (parentId를 사용하여 추론)
-      if (parentId !== null) {
-        // breadcrumbPath에서 현재 폴더 정보 가져오기
-        const currentCrumb = breadcrumbPath.find((crumb) => crumb.id === parentId);
-        if (currentCrumb) {
-          // breadcrumbPath에서 parentId 찾기
-          const currentIndex = breadcrumbPath.findIndex((crumb) => crumb.id === parentId);
-          const parentCrumb = currentIndex > 0 ? breadcrumbPath[currentIndex - 1] : null;
-          
-          setCurrentFolder({
-            id: parentId,
-            name: currentCrumb.name,
-            type: "folder",
-            size: undefined,
-            modified: "",
-            parentId: parentCrumb?.id ?? null,
-            mimeType: undefined,
-          });
-        }
-      } else {
-        setCurrentFolder(null);
-      }
     } catch (e) {
       console.error("fetchFiles error:", e);
       toast.error("파일을 불러오는 중 오류가 발생했습니다.");
@@ -257,7 +234,7 @@ export function CloudStorage() {
     // breadcrumbPath가 2개 이상이면 상위 디렉토리가 있음
     if (breadcrumbPath.length > 1) {
       const parentCrumb = breadcrumbPath[breadcrumbPath.length - 2];
-      
+
       // 루트 디렉토리는 null이어야 함 (0이 아님)
       if (parentCrumb.id === null) {
         setParentFolder({
@@ -271,8 +248,10 @@ export function CloudStorage() {
         });
       } else {
         // files 배열에서 parentCrumb.id와 일치하는 id를 가진 파일 찾기
-        const parentFile = files.find((f) => f.id === parentCrumb.id && f.type === "folder");
-        
+        const parentFile = files.find(
+          (f) => f.id === parentCrumb.id && f.type === "folder"
+        );
+
         if (parentFile) {
           // 실제 파일 목록에서 찾은 경우 (더 정확한 정보)
           setParentFolder({
@@ -292,7 +271,10 @@ export function CloudStorage() {
             type: "folder",
             size: undefined,
             modified: "",
-            parentId: breadcrumbPath.length > 2 ? breadcrumbPath[breadcrumbPath.length - 3]?.id ?? null : null,
+            parentId:
+              breadcrumbPath.length > 2
+                ? breadcrumbPath[breadcrumbPath.length - 3]?.id ?? null
+                : null,
             mimeType: undefined,
           });
         }
@@ -371,7 +353,6 @@ export function CloudStorage() {
     }
   };
 
-
   const toggleSelectItem = (id: number) => {
     setSelectedItems((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
@@ -394,7 +375,9 @@ export function CloudStorage() {
       formData.append("parentId", String(currentParentId));
 
     setIsUploading(true);
-    toast.loading(`${filesToUpload.length}개 파일 업로드 중...`, { id: "upload" });
+    toast.loading(`${filesToUpload.length}개 파일 업로드 중...`, {
+      id: "upload",
+    });
 
     try {
       const uploadUrl = `${BASE}/upload`;
@@ -434,7 +417,8 @@ export function CloudStorage() {
       fetchFiles(currentParentId);
     } catch (e) {
       console.error("uploadFiles error:", e);
-      const errorMessage = e instanceof Error ? e.message : "파일 업로드 중 오류 발생";
+      const errorMessage =
+        e instanceof Error ? e.message : "파일 업로드 중 오류 발생";
       toast.error(errorMessage, { id: "upload" });
     } finally {
       setIsUploading(false);
@@ -459,7 +443,7 @@ export function CloudStorage() {
       const hasFileItems = Array.from(e.dataTransfer?.items || []).some(
         (item) => item.kind === "file"
       );
-      
+
       if (hasFiles || hasFileItems) {
         dragCounterRef.current += 1;
         if (dragCounterRef.current === 1) {
@@ -475,7 +459,7 @@ export function CloudStorage() {
       const hasFileItems = Array.from(e.dataTransfer?.items || []).some(
         (item) => item.kind === "file"
       );
-      
+
       if (hasFiles || hasFileItems) {
         if (e.dataTransfer) {
           e.dataTransfer.dropEffect = "copy";
@@ -607,14 +591,15 @@ export function CloudStorage() {
     const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     const size = bytes / Math.pow(k, i);
-    
+
     // 소수점 처리: 1보다 작으면 소수점 2자리, 그 외에는 소수점 1자리
-    const formattedSize = size < 1 
-      ? size.toFixed(2) 
-      : size >= 100 
-      ? Math.round(size).toString()
-      : size.toFixed(1);
-    
+    const formattedSize =
+      size < 1
+        ? size.toFixed(2)
+        : size >= 100
+        ? Math.round(size).toString()
+        : size.toFixed(1);
+
     return `${formattedSize} ${sizes[i]}`;
   };
 
@@ -623,7 +608,9 @@ export function CloudStorage() {
       return toast.error("다운로드할 파일을 선택해주세요.");
 
     try {
-      toast.loading(`${selectedItems.length}개 파일 압축 중...`, { id: "download" });
+      toast.loading(`${selectedItems.length}개 파일 압축 중...`, {
+        id: "download",
+      });
 
       // 여러 파일을 압축하여 다운로드
       const downloadUrl = `${BASE}/download/zip`;
@@ -647,7 +634,7 @@ export function CloudStorage() {
 
       const blob = await res.blob();
       const contentDisposition = res.headers.get("content-disposition");
-      
+
       // 파일명 추출 (Content-Disposition 헤더에서)
       let fileName = "download.zip";
       if (contentDisposition) {
@@ -673,10 +660,14 @@ export function CloudStorage() {
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      toast.success(`${selectedItems.length}개 파일이 압축되어 다운로드되었습니다.`, { id: "download" });
+      toast.success(
+        `${selectedItems.length}개 파일이 압축되어 다운로드되었습니다.`,
+        { id: "download" }
+      );
     } catch (e) {
       console.error("handleDownload error:", e);
-      const errorMessage = e instanceof Error ? e.message : "다운로드 중 오류 발생";
+      const errorMessage =
+        e instanceof Error ? e.message : "다운로드 중 오류 발생";
       toast.error(errorMessage, { id: "download" });
     }
   };
@@ -692,7 +683,7 @@ export function CloudStorage() {
 
       const blob = await res.blob();
       const contentDisposition = res.headers.get("content-disposition");
-      
+
       // 파일명 추출 (Content-Disposition 헤더에서)
       let fileName = "";
       if (contentDisposition) {
@@ -708,7 +699,7 @@ export function CloudStorage() {
           }
         }
       }
-      
+
       // 백엔드에서 파일명을 보내지 않은 경우, 파일 목록에서 찾기
       if (!fileName) {
         const file = files.find((f) => f.id === fileId);
@@ -752,7 +743,8 @@ export function CloudStorage() {
           const text = await res.text();
           if (text) {
             const errorData = JSON.parse(text);
-            errorMessage = errorData?.message || errorData?.error || errorMessage;
+            errorMessage =
+              errorData?.message || errorData?.error || errorMessage;
           }
         } catch {
           // JSON 파싱 실패 시 기본 메시지 사용
@@ -775,13 +767,18 @@ export function CloudStorage() {
       fetchFiles(currentParentId);
     } catch (e) {
       console.error("moveFile error:", e);
-      const errorMessage = e instanceof Error ? e.message : "파일 이동 중 오류 발생";
+      const errorMessage =
+        e instanceof Error ? e.message : "파일 이동 중 오류 발생";
       toast.error(errorMessage);
       throw e;
     }
   };
 
-  const handleItemDragStart = (e: React.DragEvent, itemId: number, itemType: "file" | "folder") => {
+  const handleItemDragStart = (
+    e: React.DragEvent,
+    itemId: number,
+    itemType: "file" | "folder"
+  ) => {
     // 파일 업로드와 구분하기 위해 커스텀 데이터 설정
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("application/x-file-id", String(itemId));
@@ -794,7 +791,10 @@ export function CloudStorage() {
     setDragOverFolderId(null);
   };
 
-  const handleFolderDragOver = (e: React.DragEvent, folderId: number | null) => {
+  const handleFolderDragOver = (
+    e: React.DragEvent,
+    folderId: number | null
+  ) => {
     // 파일 업로드가 아닌 경우에만 처리
     if (e.dataTransfer.types.includes("application/x-file-id")) {
       e.preventDefault();
@@ -809,7 +809,10 @@ export function CloudStorage() {
     setDragOverFolderId(null);
   };
 
-  const handleFolderDrop = async (e: React.DragEvent, folderId: number | null) => {
+  const handleFolderDrop = async (
+    e: React.DragEvent,
+    folderId: number | null
+  ) => {
     e.preventDefault();
     e.stopPropagation();
     setDragOverFolderId(null);
@@ -820,7 +823,10 @@ export function CloudStorage() {
     const itemId = Number(itemIdStr);
     if (isNaN(itemId)) return;
 
-    const itemType = e.dataTransfer.getData("application/x-item-type") as "file" | "folder" | "";
+    const itemType = e.dataTransfer.getData("application/x-item-type") as
+      | "file"
+      | "folder"
+      | "";
 
     // 상위 디렉토리로 이동하는 경우 (folderId가 -1이면 null로 이동)
     const targetParentId = folderId === -1 ? null : folderId;
@@ -833,7 +839,9 @@ export function CloudStorage() {
 
     // 폴더를 자기 자신의 자식 폴더로 이동하는 것 방지
     if (itemType === "folder" && targetParentId !== null) {
-      const draggedFolder = files.find((f) => f.id === itemId && f.type === "folder");
+      const draggedFolder = files.find(
+        (f) => f.id === itemId && f.type === "folder"
+      );
       if (draggedFolder) {
         // 재귀적으로 자식 폴더인지 확인
         const isDescendant = (folderId: number, targetId: number): boolean => {
@@ -842,7 +850,7 @@ export function CloudStorage() {
           if (folder.parentId === targetId) return true;
           return isDescendant(folder.parentId, targetId);
         };
-        
+
         if (isDescendant(targetParentId, itemId)) {
           toast.error("자기 자신의 하위 폴더로는 이동할 수 없습니다.");
           return;
@@ -867,11 +875,14 @@ export function CloudStorage() {
 
   // 스타일 상수
   const dragOverStyles = {
-    mobile: "bg-primary/20 ring-2 ring-primary border-l-4 border-primary rounded shadow-sm px-2 -mx-2",
-    desktop: "bg-primary/20 ring-2 ring-primary border-l-4 border-primary rounded shadow-sm px-3 py-2 -mx-3",
+    mobile:
+      "bg-primary/20 ring-2 ring-primary border-l-4 border-primary rounded shadow-sm px-2 -mx-2",
+    desktop:
+      "bg-primary/20 ring-2 ring-primary border-l-4 border-primary rounded shadow-sm px-3 py-2 -mx-3",
   };
 
-  const checkboxStyles = "h-5 w-5 border-2 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all hover:border-primary/50";
+  const checkboxStyles =
+    "h-5 w-5 border-2 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all hover:border-primary/50";
   const fileRowStyles = "px-4 md:px-6 py-4 hover:bg-muted/30 transition-colors";
 
   // 상위 폴더로 이동하는 함수
@@ -891,13 +902,22 @@ export function CloudStorage() {
 
   // 파일 아이템 드래그 앤 드롭 핸들러
   const getFileDragHandlers = (file: FileItem) => ({
-    onDragOver: file.type === "folder" ? (e: React.DragEvent) => handleFolderDragOver(e, file.id) : undefined,
+    onDragOver:
+      file.type === "folder"
+        ? (e: React.DragEvent) => handleFolderDragOver(e, file.id)
+        : undefined,
     onDragLeave: file.type === "folder" ? handleFolderDragLeave : undefined,
-    onDrop: file.type === "folder" ? (e: React.DragEvent) => handleFolderDrop(e, file.id) : undefined,
+    onDrop:
+      file.type === "folder"
+        ? (e: React.DragEvent) => handleFolderDrop(e, file.id)
+        : undefined,
   });
 
   // 드래그 오버 스타일 가져오기
-  const getDragOverClassName = (folderId: number | null, isMobile: boolean = false) => {
+  const getDragOverClassName = (
+    folderId: number | null,
+    isMobile: boolean = false
+  ) => {
     if (dragOverFolderId === folderId) {
       return isMobile ? dragOverStyles.mobile : dragOverStyles.desktop;
     }
@@ -931,11 +951,12 @@ export function CloudStorage() {
     if (!file.mimeType) {
       // mimeType이 없으면 파일 확장자로 판단
       const ext = file.name.split(".").pop()?.toLowerCase();
-      return ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].includes(ext || "");
+      return ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].includes(
+        ext || ""
+      );
     }
     return file.mimeType.startsWith("image/");
   };
-
 
   return (
     <div className="min-h-screen bg-background relative">
@@ -1081,10 +1102,7 @@ export function CloudStorage() {
               {isUploading ? "업로드 중..." : "업로드"}
             </span>
           </Button>
-          <Button
-            onClick={handleCreateFolder}
-            className="gap-2"
-          >
+          <Button onClick={handleCreateFolder} className="gap-2">
             <Plus className="h-4 w-4" />
             <span className="hidden sm:inline">새 폴더</span>
           </Button>
@@ -1106,58 +1124,51 @@ export function CloudStorage() {
             <Trash2 className="h-4 w-4" />
             <span className="hidden sm:inline">삭제</span>
           </Button>
-            <div className="ml-auto flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="gap-2"
-                  >
-                    <ArrowUpDown className="h-4 w-4" />
-                    <span className="hidden sm:inline">정렬</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => handleSort("name")}>
-                    <div className="flex items-center justify-between w-full">
-                      <span>이름</span>
-                      {sortField === "name" && (
-                        sortOrder === "asc" ? (
-                          <ArrowUp className="h-4 w-4 text-primary" />
-                        ) : (
-                          <ArrowDown className="h-4 w-4 text-primary" />
-                        )
-                      )}
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSort("modified")}>
-                    <div className="flex items-center justify-between w-full">
-                      <span>수정일</span>
-                      {sortField === "modified" && (
-                        sortOrder === "asc" ? (
-                          <ArrowUp className="h-4 w-4 text-primary" />
-                        ) : (
-                          <ArrowDown className="h-4 w-4 text-primary" />
-                        )
-                      )}
-                    </div>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleSort("size")}>
-                    <div className="flex items-center justify-between w-full">
-                      <span>크기</span>
-                      {sortField === "size" && (
-                        sortOrder === "asc" ? (
-                          <ArrowUp className="h-4 w-4 text-primary" />
-                        ) : (
-                          <ArrowDown className="h-4 w-4 text-primary" />
-                        )
-                      )}
-                    </div>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <div className="flex items-center gap-1 border border-border rounded-md p-1">
+          <div className="ml-auto flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <ArrowUpDown className="h-4 w-4" />
+                  <span className="hidden sm:inline">정렬</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleSort("name")}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>이름</span>
+                    {sortField === "name" &&
+                      (sortOrder === "asc" ? (
+                        <ArrowUp className="h-4 w-4 text-primary" />
+                      ) : (
+                        <ArrowDown className="h-4 w-4 text-primary" />
+                      ))}
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSort("modified")}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>수정일</span>
+                    {sortField === "modified" &&
+                      (sortOrder === "asc" ? (
+                        <ArrowUp className="h-4 w-4 text-primary" />
+                      ) : (
+                        <ArrowDown className="h-4 w-4 text-primary" />
+                      ))}
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSort("size")}>
+                  <div className="flex items-center justify-between w-full">
+                    <span>크기</span>
+                    {sortField === "size" &&
+                      (sortOrder === "asc" ? (
+                        <ArrowUp className="h-4 w-4 text-primary" />
+                      ) : (
+                        <ArrowDown className="h-4 w-4 text-primary" />
+                      ))}
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <div className="flex items-center gap-1 border border-border rounded-md p-1">
               <Button
                 variant={viewMode === "list" ? "default" : "ghost"}
                 size="icon-sm"
@@ -1198,7 +1209,8 @@ export function CloudStorage() {
                   전체 선택
                 </Button>
                 <span className="text-xs font-medium text-muted-foreground">
-                  {selectedItems.length > 0 && `${selectedItems.length}개 선택됨`}
+                  {selectedItems.length > 0 &&
+                    `${selectedItems.length}개 선택됨`}
                 </span>
               </div>
 
@@ -1230,13 +1242,12 @@ export function CloudStorage() {
                   }`}
                 >
                   이름
-                      {sortField === "name" && (
-                        sortOrder === "asc" ? (
-                          <ArrowUp className="h-4 w-4 text-primary" />
-                        ) : (
-                          <ArrowDown className="h-4 w-4 text-primary" />
-                        )
-                      )}
+                  {sortField === "name" &&
+                    (sortOrder === "asc" ? (
+                      <ArrowUp className="h-4 w-4 text-primary" />
+                    ) : (
+                      <ArrowDown className="h-4 w-4 text-primary" />
+                    ))}
                 </button>
                 <button
                   onClick={() => handleSort("size")}
@@ -1247,13 +1258,12 @@ export function CloudStorage() {
                   }`}
                 >
                   크기
-                      {sortField === "size" && (
-                        sortOrder === "asc" ? (
-                          <ArrowUp className="h-4 w-4 text-primary" />
-                        ) : (
-                          <ArrowDown className="h-4 w-4 text-primary" />
-                        )
-                      )}
+                  {sortField === "size" &&
+                    (sortOrder === "asc" ? (
+                      <ArrowUp className="h-4 w-4 text-primary" />
+                    ) : (
+                      <ArrowDown className="h-4 w-4 text-primary" />
+                    ))}
                 </button>
                 <button
                   onClick={() => handleSort("modified")}
@@ -1264,13 +1274,12 @@ export function CloudStorage() {
                   }`}
                 >
                   수정일
-                      {sortField === "modified" && (
-                        sortOrder === "asc" ? (
-                          <ArrowUp className="h-4 w-4 text-primary" />
-                        ) : (
-                          <ArrowDown className="h-4 w-4 text-primary" />
-                        )
-                      )}
+                  {sortField === "modified" &&
+                    (sortOrder === "asc" ? (
+                      <ArrowUp className="h-4 w-4 text-primary" />
+                    ) : (
+                      <ArrowDown className="h-4 w-4 text-primary" />
+                    ))}
                 </button>
                 <div className="col-span-1"></div>
               </div>
@@ -1288,34 +1297,44 @@ export function CloudStorage() {
                       <div className="flex-1 min-w-0">
                         <button
                           onClick={navigateToParent}
-                          className={`flex items-center gap-2 w-full text-left cursor-pointer transition-all ${getDragOverClassName(parentFolder.id, true)}`}
+                          className={`flex items-center gap-2 w-full text-left cursor-pointer transition-all ${getDragOverClassName(
+                            parentFolder.id,
+                            true
+                          )}`}
                         >
                           <Folder className="h-5 w-5 text-primary flex-shrink-0" />
-                          <span className="font-medium text-foreground">../{parentFolder.name}</span>
+                          <span className="font-medium text-foreground">
+                            ../{parentFolder.name}
+                          </span>
                         </button>
                       </div>
                     </div>
-                      <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
-                        <div className="col-span-1 flex items-center justify-start">
-                          <div className="w-5" />
-                        </div>
-                        <div className="col-span-5 flex items-center gap-3 min-w-0">
-                          <button
-                            onClick={navigateToParent}
-                            className={`flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer hover:text-primary transition-all ${getDragOverClassName(parentFolder.id, false)}`}
-                          >
-                            <Folder className="h-5 w-5 text-primary flex-shrink-0" />
-                            <span className="font-medium text-foreground truncate">../{parentFolder.name}</span>
-                          </button>
-                        </div>
-                        <div className="col-span-2 text-sm text-muted-foreground">
-                          -
-                        </div>
-                        <div className="col-span-3 text-sm text-muted-foreground">
-                          -
-                        </div>
-                        <div className="col-span-1"></div>
+                    <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
+                      <div className="col-span-1 flex items-center justify-start">
+                        <div className="w-5" />
                       </div>
+                      <div className="col-span-5 flex items-center gap-3 min-w-0">
+                        <button
+                          onClick={navigateToParent}
+                          className={`flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer hover:text-primary transition-all ${getDragOverClassName(
+                            parentFolder.id,
+                            false
+                          )}`}
+                        >
+                          <Folder className="h-5 w-5 text-primary flex-shrink-0" />
+                          <span className="font-medium text-foreground truncate">
+                            ../{parentFolder.name}
+                          </span>
+                        </button>
+                      </div>
+                      <div className="col-span-2 text-sm text-muted-foreground">
+                        -
+                      </div>
+                      <div className="col-span-3 text-sm text-muted-foreground">
+                        -
+                      </div>
+                      <div className="col-span-1"></div>
+                    </div>
                   </div>
                 )}
                 {isLoadingFiles ? (
@@ -1328,117 +1347,122 @@ export function CloudStorage() {
                   </div>
                 ) : (
                   currentFiles.map((file, index) => (
-                <div
-                  key={file.id}
-                  draggable={true}
-                  onDragStart={(e) => handleItemDragStart(e, file.id, file.type)}
-                  onDragEnd={handleFileDragEnd}
-                  className={`${fileRowStyles} ${
-                    selectedItems.includes(file.id) ? "bg-primary/10" : ""
-                  } ${
-                    draggedFileId === file.id ? "opacity-50" : ""
-                  }`}
-                >
-                  <div className="md:hidden flex items-start gap-3">
-                    <div className="mt-1 flex-shrink-0">
-                      <Checkbox
-                        checked={selectedItems.includes(file.id)}
-                        onCheckedChange={() => toggleSelectItem(file.id)}
-                        className={checkboxStyles}
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <button
-                        onClick={() =>
-                          file.type === "folder" && handleFolderClick(file)
-                        }
-                        {...getFileDragHandlers(file)}
-                        className={`flex items-center gap-2 mb-1 w-full text-left transition-all ${
-                          file.type === "folder" ? "cursor-pointer" : ""
-                        } ${file.type === "folder" ? getDragOverClassName(file.id, true) : ""}`}
-                      >
-                        {file.type === "folder" ? (
-                          <Folder className="h-5 w-5 text-primary flex-shrink-0" />
-                        ) : (
-                          <File className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                        )}
-                        <span className="font-medium text-foreground truncate">
-                          {file.name}
-                        </span>
-                      </button>
-                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                        {file.type === "file" && file.size && (
-                          <span>{file.size}</span>
-                        )}
-                        <span>{file.modified}</span>
+                    <div
+                      key={file.id}
+                      draggable={true}
+                      onDragStart={(e) =>
+                        handleItemDragStart(e, file.id, file.type)
+                      }
+                      onDragEnd={handleFileDragEnd}
+                      className={`${fileRowStyles} ${
+                        selectedItems.includes(file.id) ? "bg-primary/10" : ""
+                      } ${draggedFileId === file.id ? "opacity-50" : ""}`}
+                    >
+                      <div className="md:hidden flex items-start gap-3">
+                        <div className="mt-1 flex-shrink-0">
+                          <Checkbox
+                            checked={selectedItems.includes(file.id)}
+                            onCheckedChange={() => toggleSelectItem(file.id)}
+                            className={checkboxStyles}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <button
+                            onClick={() =>
+                              file.type === "folder" && handleFolderClick(file)
+                            }
+                            {...getFileDragHandlers(file)}
+                            className={`flex items-center gap-2 mb-1 w-full text-left transition-all ${
+                              file.type === "folder" ? "cursor-pointer" : ""
+                            } ${
+                              file.type === "folder"
+                                ? getDragOverClassName(file.id, true)
+                                : ""
+                            }`}
+                          >
+                            {file.type === "folder" ? (
+                              <Folder className="h-5 w-5 text-primary flex-shrink-0" />
+                            ) : (
+                              <File className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                            )}
+                            <span className="font-medium text-foreground truncate">
+                              {file.name}
+                            </span>
+                          </button>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            {file.type === "file" && file.size && (
+                              <span>{file.size}</span>
+                            )}
+                            <span>{file.modified}</span>
+                          </div>
+                        </div>
+                        <FileActionsMenu fileId={file.id} />
+                      </div>
+
+                      <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
+                        <div className="col-span-1 flex items-center justify-start">
+                          <Checkbox
+                            checked={selectedItems.includes(file.id)}
+                            onCheckedChange={() => toggleSelectItem(file.id)}
+                            className={checkboxStyles}
+                          />
+                        </div>
+                        <div className="col-span-5 flex items-center gap-3 min-w-0">
+                          <button
+                            onClick={() =>
+                              file.type === "folder" && handleFolderClick(file)
+                            }
+                            {...getFileDragHandlers(file)}
+                            className={`flex items-center gap-3 min-w-0 flex-1 text-left transition-all ${
+                              file.type === "folder"
+                                ? "cursor-pointer hover:text-primary"
+                                : ""
+                            } ${
+                              file.type === "folder"
+                                ? getDragOverClassName(file.id, false)
+                                : ""
+                            }`}
+                          >
+                            {file.type === "folder" ? (
+                              <Folder className="h-5 w-5 text-primary flex-shrink-0" />
+                            ) : (
+                              <File className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                            )}
+                            <span className="font-medium text-foreground truncate">
+                              {file.name}
+                            </span>
+                          </button>
+                        </div>
+                        <div className="col-span-2 text-sm text-muted-foreground">
+                          {file.type === "file" ? file.size || "-" : "-"}
+                        </div>
+                        <div className="col-span-3 text-sm text-muted-foreground">
+                          {file.modified}
+                        </div>
+                        <div className="col-span-1 flex justify-end">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon-sm">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem
+                                onClick={() => handleDownloadSingle(file.id)}
+                              >
+                                <Download className="mr-2 h-4 w-4" /> 다운로드
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => handleDeleteSingle(file.id)}
+                              >
+                                <Trash2 className="mr-2 h-4 w-4" /> 삭제
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
                     </div>
-                    <FileActionsMenu fileId={file.id} />
-                  </div>
-
-                  <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
-                    <div className="col-span-1 flex items-center justify-start">
-                      <Checkbox
-                        checked={selectedItems.includes(file.id)}
-                        onCheckedChange={() => toggleSelectItem(file.id)}
-                        className={checkboxStyles}
-                      />
-                    </div>
-                    <div className="col-span-5 flex items-center gap-3 min-w-0">
-                      <button
-                        onClick={() =>
-                          file.type === "folder" && handleFolderClick(file)
-                        }
-                        {...getFileDragHandlers(file)}
-                        className={`flex items-center gap-3 min-w-0 flex-1 text-left transition-all ${
-                          file.type === "folder"
-                            ? "cursor-pointer hover:text-primary"
-                            : ""
-                        } ${file.type === "folder" ? getDragOverClassName(file.id, false) : ""}`}
-                      >
-                        {file.type === "folder" ? (
-                          <Folder className="h-5 w-5 text-primary flex-shrink-0" />
-                        ) : (
-                          <File className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                        )}
-                        <span className="font-medium text-foreground truncate">
-                          {file.name}
-                        </span>
-                      </button>
-                    </div>
-                    <div className="col-span-2 text-sm text-muted-foreground">
-                      {file.type === "file" ? file.size || "-" : "-"}
-                    </div>
-                    <div className="col-span-3 text-sm text-muted-foreground">
-                      {file.modified}
-                    </div>
-                    <div className="col-span-1 flex justify-end">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem
-                            onClick={() => handleDownloadSingle(file.id)}
-                          >
-                            <Download className="mr-2 h-4 w-4" /> 다운로드
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            className="text-destructive"
-                            onClick={() => handleDeleteSingle(file.id)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" /> 삭제
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </div>
-                </div>
                   ))
                 )}
               </div>
@@ -1484,7 +1508,9 @@ export function CloudStorage() {
                           ? "ring-2 ring-primary bg-primary/10"
                           : ""
                       }`}
-                      onDragOver={(e) => handleFolderDragOver(e, parentFolder.id)}
+                      onDragOver={(e) =>
+                        handleFolderDragOver(e, parentFolder.id)
+                      }
                       onDragLeave={handleFolderDragLeave}
                       onDrop={(e) => handleFolderDrop(e, parentFolder.id)}
                       onClick={navigateToParent}
@@ -1493,7 +1519,10 @@ export function CloudStorage() {
                         <Folder className="h-12 w-12 text-primary" />
                       </div>
                       <div className="w-full text-center">
-                        <p className="text-sm font-medium text-foreground break-words" title={`../${parentFolder.name}`}>
+                        <p
+                          className="text-sm font-medium text-foreground break-words"
+                          title={`../${parentFolder.name}`}
+                        >
                           ../{parentFolder.name}
                         </p>
                       </div>
@@ -1503,7 +1532,9 @@ export function CloudStorage() {
                     <div
                       key={file.id}
                       draggable={true}
-                      onDragStart={(e) => handleItemDragStart(e, file.id, file.type)}
+                      onDragStart={(e) =>
+                        handleItemDragStart(e, file.id, file.type)
+                      }
                       onDragEnd={handleFileDragEnd}
                       onDragOver={(e) =>
                         file.type === "folder" &&
@@ -1514,12 +1545,8 @@ export function CloudStorage() {
                         file.type === "folder" && handleFolderDrop(e, file.id)
                       }
                       className={`group relative flex flex-col items-center p-4 rounded-lg border-2 border-border bg-card hover:bg-muted/30 hover:border-primary/30 transition-all cursor-pointer ${
-                        selectedItems.includes(file.id)
-                          ? "bg-primary/10"
-                          : ""
-                      } ${
-                        draggedFileId === file.id ? "opacity-50" : ""
-                      } ${
+                        selectedItems.includes(file.id) ? "bg-primary/10" : ""
+                      } ${draggedFileId === file.id ? "opacity-50" : ""} ${
                         file.type === "folder" && dragOverFolderId === file.id
                           ? "ring-2 ring-primary border-primary bg-primary/20 shadow-sm"
                           : ""
@@ -1552,12 +1579,18 @@ export function CloudStorage() {
                             className={`${checkboxStyles} bg-background/95 backdrop-blur-sm shadow-md hover:scale-110`}
                           />
                         </div>
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                        <div
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <FileActionsMenu fileId={file.id} />
                         </div>
                       </div>
                       <div className="w-full text-center">
-                        <p className="text-sm font-medium text-foreground truncate" title={file.name}>
+                        <p
+                          className="text-sm font-medium text-foreground truncate"
+                          title={file.name}
+                        >
                           {file.name}
                         </p>
                         {file.size && (
