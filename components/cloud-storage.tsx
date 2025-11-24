@@ -23,7 +23,6 @@ import {
   User,
   Settings,
   LogOut,
-  MoreVertical,
   Plus,
   Loader2,
   List,
@@ -136,14 +135,14 @@ export function CloudStorage() {
   const [userEmail, setUserEmail] = useState<string>("");
   const [usedStorage, setUsedStorage] = useState<number>(0);
   const [totalStorage, setTotalStorage] = useState<number>(0);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [draggedFileId, setDraggedFileId] = useState<number | null>(null);
   const [dragOverFolderId, setDragOverFolderId] = useState<number | null>(null);
   const [sortField, setSortField] = useState<SortField>("name");
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
-  const [isLoadingFiles, setIsLoadingFiles] = useState<boolean>(false);
+  const [isLoadingFiles, setIsLoadingFiles] = useState(false);
   const dragCounterRef = useRef<number>(0);
   const storagePercentage =
     totalStorage > 0 ? (usedStorage / totalStorage) * 100 : 0;
@@ -162,13 +161,10 @@ export function CloudStorage() {
 
       const response = await res.json();
 
-      // ApiResponse 구조: { success, message, data }
-      // data 구조: { email, usedStorage (바이트), storageLimit (GB) }
       if (response.success && response.data) {
         const { email, usedStorage: usedBytes, storageLimit } = response.data;
 
         setUserEmail(email || "");
-        // usedStorage를 바이트에서 GB로 변환 (1024^3 = 1073741824)
         const usedStorageGB = usedBytes ? usedBytes / (1024 * 1024 * 1024) : 0;
         setUsedStorage(usedStorageGB);
         setTotalStorage(storageLimit || 0);
@@ -189,7 +185,6 @@ export function CloudStorage() {
       const res = await fetch(url, { method: "GET", credentials: "include" });
       const raw = await res.json();
 
-      // If response is wrapper object, attempt to extract array
       interface ApiFileResponse {
         id: number | string;
         name?: string;
@@ -229,16 +224,13 @@ export function CloudStorage() {
     }
   };
 
-  // breadcrumbPath를 사용하여 상위 폴더 정보 가져오기
   useEffect(() => {
-    // breadcrumbPath가 2개 이상이면 상위 디렉토리가 있음
     if (breadcrumbPath.length > 1) {
       const parentCrumb = breadcrumbPath[breadcrumbPath.length - 2];
 
-      // 루트 디렉토리는 null이어야 함 (0이 아님)
       if (parentCrumb.id === null) {
         setParentFolder({
-          id: -1, // 상위 디렉토리를 나타내는 특별한 ID (null로 이동하기 위해)
+          id: -1,
           name: "내 드라이브",
           type: "folder",
           size: undefined,
@@ -247,13 +239,11 @@ export function CloudStorage() {
           mimeType: undefined,
         });
       } else {
-        // files 배열에서 parentCrumb.id와 일치하는 id를 가진 파일 찾기
         const parentFile = files.find(
           (f) => f.id === parentCrumb.id && f.type === "folder"
         );
 
         if (parentFile) {
-          // 실제 파일 목록에서 찾은 경우 (더 정확한 정보)
           setParentFolder({
             id: parentFile.id,
             name: parentFile.name,
@@ -264,7 +254,6 @@ export function CloudStorage() {
             mimeType: undefined,
           });
         } else {
-          // files 배열에 없으면 breadcrumbPath에서 정보 사용
           setParentFolder({
             id: parentCrumb.id,
             name: parentCrumb.name,
@@ -289,7 +278,6 @@ export function CloudStorage() {
     fetchFiles(currentParentId);
   }, [currentParentId]);
 
-  // 파일 크기를 숫자로 변환하는 헬퍼 함수
   const parseSize = (sizeStr?: string): number => {
     if (!sizeStr) return 0;
     const match = sizeStr.match(/^([\d.]+)\s*([KMGT]?B)$/i);
@@ -306,7 +294,6 @@ export function CloudStorage() {
     return value * (multipliers[unit] || 1);
   };
 
-  // 정렬 함수
   const sortFiles = (filesToSort: FileItem[]): FileItem[] => {
     const sorted = [...filesToSort].sort((a, b) => {
       let comparison = 0;
@@ -318,7 +305,6 @@ export function CloudStorage() {
         const dateB = new Date(b.modified).getTime();
         comparison = dateA - dateB;
       } else if (sortField === "size") {
-        // 폴더는 항상 파일보다 앞에 오도록
         if (a.type === "folder" && b.type === "file") return -1;
         if (a.type === "file" && b.type === "folder") return 1;
         if (a.type === "folder" && b.type === "folder") {
@@ -344,10 +330,8 @@ export function CloudStorage() {
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
-      // 같은 필드를 클릭하면 정렬 순서 토글
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
-      // 다른 필드를 클릭하면 해당 필드로 정렬 (기본 오름차순)
       setSortField(field);
       setSortOrder("asc");
     }
@@ -359,9 +343,17 @@ export function CloudStorage() {
     );
   };
 
-  const selectAll = () => {
-    if (selectedItems.length === currentFiles.length) setSelectedItems([]);
-    else setSelectedItems(currentFiles.map((file) => file.id));
+  const selectAll = (checked?: boolean | "indeterminate") => {
+    if (checked === undefined || checked === "indeterminate") {
+      if (selectedItems.length === currentFiles.length) setSelectedItems([]);
+      else setSelectedItems(currentFiles.map((file) => file.id));
+    } else {
+      if (checked) {
+        setSelectedItems(currentFiles.map((file) => file.id));
+      } else {
+        setSelectedItems([]);
+      }
+    }
   };
 
   const handleUpload = () => fileInputRef.current?.click();
@@ -523,28 +515,8 @@ export function CloudStorage() {
     }
   };
 
-  const handleDeleteSingle = async (fileId: number) => {
-    try {
-      const deleteUrl = `${BASE}/delete`;
-      const res = await fetch(deleteUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify([fileId]),
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error(`delete status ${res.status}`);
-
-      toast.success("항목이 삭제되었습니다.");
-      fetchDriveInfo();
-      fetchFiles(currentParentId);
-    } catch (e) {
-      console.error("handleDeleteSingle error:", e);
-      toast.error("삭제 중 오류 발생");
-    }
-  };
 
   const handleFolderClick = (folder: FileItem) => {
-    // 로딩 시작 전에 파일 목록을 비워서 이전 파일들이 보이지 않도록 함
     setFiles([]);
     setCurrentParentId(folder.id);
     setBreadcrumbPath((prev) => [
@@ -556,7 +528,6 @@ export function CloudStorage() {
   };
 
   const handleBreadcrumbClick = (id: number | null, index: number) => {
-    // 로딩 시작 전에 파일 목록을 비워서 이전 파일들이 보이지 않도록 함
     setFiles([]);
     setCurrentParentId(id);
     setBreadcrumbPath((prev) => prev.slice(0, index + 1));
@@ -592,7 +563,6 @@ export function CloudStorage() {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     const size = bytes / Math.pow(k, i);
 
-    // 소수점 처리: 1보다 작으면 소수점 2자리, 그 외에는 소수점 1자리
     const formattedSize =
       size < 1
         ? size.toFixed(2)
@@ -612,7 +582,6 @@ export function CloudStorage() {
         id: "download",
       });
 
-      // 여러 파일을 압축하여 다운로드
       const downloadUrl = `${BASE}/download/zip`;
       const res = await fetch(downloadUrl, {
         method: "POST",
@@ -635,15 +604,12 @@ export function CloudStorage() {
       const blob = await res.blob();
       const contentDisposition = res.headers.get("content-disposition");
 
-      // 파일명 추출 (Content-Disposition 헤더에서)
       let fileName = "download.zip";
       if (contentDisposition) {
-        // filename*=UTF-8'' 형식 처리 (한글 파일명)
         const utf8Match = contentDisposition.match(/filename\*=UTF-8''(.+)/i);
         if (utf8Match) {
           fileName = decodeURIComponent(utf8Match[1]);
         } else {
-          // 일반 filename="파일명" 형식 처리
           const match = contentDisposition.match(/filename="?([^";]+)"?/i);
           if (match) {
             fileName = match[1];
@@ -672,55 +638,6 @@ export function CloudStorage() {
     }
   };
 
-  const handleDownloadSingle = async (fileId: number) => {
-    try {
-      const downloadUrl = `${BASE}/download/${fileId}`;
-      const res = await fetch(downloadUrl, {
-        method: "GET",
-        credentials: "include",
-      });
-      if (!res.ok) throw new Error(`download status ${res.status}`);
-
-      const blob = await res.blob();
-      const contentDisposition = res.headers.get("content-disposition");
-
-      // 파일명 추출 (Content-Disposition 헤더에서)
-      let fileName = "";
-      if (contentDisposition) {
-        // filename*=UTF-8'' 형식 처리 (한글 파일명)
-        const utf8Match = contentDisposition.match(/filename\*=UTF-8''(.+)/i);
-        if (utf8Match) {
-          fileName = decodeURIComponent(utf8Match[1]);
-        } else {
-          // 일반 filename="파일명" 형식 처리
-          const match = contentDisposition.match(/filename="?([^";]+)"?/i);
-          if (match) {
-            fileName = match[1];
-          }
-        }
-      }
-
-      // 백엔드에서 파일명을 보내지 않은 경우, 파일 목록에서 찾기
-      if (!fileName) {
-        const file = files.find((f) => f.id === fileId);
-        fileName = file?.name || `file-${fileId}`;
-      }
-
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileName;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-
-      toast.success("파일 다운로드가 시작되었습니다.");
-    } catch (e) {
-      console.error("handleDownloadSingle error:", e);
-      toast.error("다운로드 중 오류 발생");
-    }
-  };
 
   const handleLogout = () => toast.success("로그아웃되었습니다.");
 
@@ -779,7 +696,6 @@ export function CloudStorage() {
     itemId: number,
     itemType: "file" | "folder"
   ) => {
-    // 파일 업로드와 구분하기 위해 커스텀 데이터 설정
     e.dataTransfer.effectAllowed = "move";
     e.dataTransfer.setData("application/x-file-id", String(itemId));
     e.dataTransfer.setData("application/x-item-type", itemType);
@@ -795,7 +711,6 @@ export function CloudStorage() {
     e: React.DragEvent,
     folderId: number | null
   ) => {
-    // 파일 업로드가 아닌 경우에만 처리
     if (e.dataTransfer.types.includes("application/x-file-id")) {
       e.preventDefault();
       e.stopPropagation();
@@ -828,22 +743,18 @@ export function CloudStorage() {
       | "folder"
       | "";
 
-    // 상위 디렉토리로 이동하는 경우 (folderId가 -1이면 null로 이동)
     const targetParentId = folderId === -1 ? null : folderId;
 
-    // 자기 자신의 폴더로 이동하는 것 방지 (targetParentId가 null이 아닐 때만)
     if (targetParentId !== null && itemId === targetParentId) {
       toast.error("자기 자신의 폴더로는 이동할 수 없습니다.");
       return;
     }
 
-    // 폴더를 자기 자신의 자식 폴더로 이동하는 것 방지
     if (itemType === "folder" && targetParentId !== null) {
       const draggedFolder = files.find(
         (f) => f.id === itemId && f.type === "folder"
       );
       if (draggedFolder) {
-        // 재귀적으로 자식 폴더인지 확인
         const isDescendant = (folderId: number, targetId: number): boolean => {
           const folder = files.find((f) => f.id === folderId);
           if (!folder || folder.parentId === null) return false;
@@ -858,7 +769,6 @@ export function CloudStorage() {
       }
     }
 
-    // 이미 해당 폴더에 있는지 확인
     const item = files.find((f) => f.id === itemId);
     if (item && item.parentId === targetParentId) {
       toast.info("이미 해당 폴더에 있습니다.");
@@ -882,12 +792,10 @@ export function CloudStorage() {
   };
 
   const checkboxStyles =
-    "h-5 w-5 border-2 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all hover:border-primary/50";
-  const fileRowStyles = "px-4 md:px-6 py-4 hover:bg-muted/30 transition-colors";
+    "h-5 w-5 border-2 border-foreground/40 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all hover:border-foreground/60";
+  const fileRowStyles = "px-4 md:px-6 py-4 transition-colors";
 
-  // 상위 폴더로 이동하는 함수
   const navigateToParent = () => {
-    // 로딩 시작 전에 파일 목록을 비워서 이전 파일들이 보이지 않도록 함
     setFiles([]);
     if (breadcrumbPath.length > 1) {
       const parentCrumb = breadcrumbPath[breadcrumbPath.length - 2];
@@ -900,7 +808,6 @@ export function CloudStorage() {
     setSelectedItems([]);
   };
 
-  // 파일 아이템 드래그 앤 드롭 핸들러
   const getFileDragHandlers = (file: FileItem) => ({
     onDragOver:
       file.type === "folder"
@@ -913,7 +820,6 @@ export function CloudStorage() {
         : undefined,
   });
 
-  // 드래그 오버 스타일 가져오기
   const getDragOverClassName = (
     folderId: number | null,
     isMobile: boolean = false
@@ -924,32 +830,10 @@ export function CloudStorage() {
     return "";
   };
 
-  // 파일 액션 메뉴 컴포넌트
-  const FileActionsMenu = ({ fileId }: { fileId: number }) => (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon-sm">
-          <MoreVertical className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => handleDownloadSingle(fileId)}>
-          <Download className="mr-2 h-4 w-4" /> 다운로드
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="text-destructive"
-          onClick={() => handleDeleteSingle(fileId)}
-        >
-          <Trash2 className="mr-2 h-4 w-4" /> 삭제
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
 
   const isImageFile = (file: FileItem): boolean => {
     if (file.type === "folder") return false;
     if (!file.mimeType) {
-      // mimeType이 없으면 파일 확장자로 판단
       const ext = file.name.split(".").pop()?.toLowerCase();
       return ["jpg", "jpeg", "png", "gif", "webp", "bmp", "svg"].includes(
         ext || ""
@@ -1087,43 +971,52 @@ export function CloudStorage() {
           ))}
         </div>
 
-        <div className="mb-5 md:mb-6 flex flex-wrap items-center gap-2 md:gap-3">
-          <Button
-            onClick={handleUpload}
-            disabled={isUploading}
-            className="gap-2"
-          >
-            {isUploading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Upload className="h-4 w-4" />
-            )}
-            <span className="hidden sm:inline">
-              {isUploading ? "업로드 중..." : "업로드"}
-            </span>
-          </Button>
-          <Button onClick={handleCreateFolder} className="gap-2">
-            <Plus className="h-4 w-4" />
-            <span className="hidden sm:inline">새 폴더</span>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleDownload}
-            disabled={selectedItems.length === 0}
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            <span className="hidden sm:inline">다운로드</span>
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleDelete}
-            disabled={selectedItems.length === 0}
-            className="gap-2 hover:bg-destructive hover:text-destructive-foreground"
-          >
-            <Trash2 className="h-4 w-4" />
-            <span className="hidden sm:inline">삭제</span>
-          </Button>
+        <div className="mb-5 md:mb-6 flex flex-wrap items-center gap-2 md:gap-3 relative min-h-[40px]">
+          {selectedItems.length > 0 ? (
+            <div className="flex items-center gap-2 md:gap-3 animate-fade-in">
+              <Button
+                variant="secondary"
+                onClick={handleDownload}
+                className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-sm"
+              >
+                <Download className="h-4 w-4" />
+                <span className="hidden sm:inline">다운로드</span>
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                className="gap-2 shadow-sm"
+              >
+                <Trash2 className="h-4 w-4" />
+                <span className="hidden sm:inline">삭제</span>
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 md:gap-3 animate-fade-in">
+              <Button
+                onClick={handleUpload}
+                disabled={isUploading}
+                className="gap-2 shadow-sm"
+              >
+                {isUploading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4" />
+                )}
+                <span className="hidden sm:inline">
+                  {isUploading ? "업로드 중..." : "업로드"}
+                </span>
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={handleCreateFolder}
+                className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-sm"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="hidden sm:inline">새 폴더</span>
+              </Button>
+            </div>
+          )}
           <div className="ml-auto flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -1194,48 +1087,44 @@ export function CloudStorage() {
             <>
               {/* 모바일 전체 선택 버튼 */}
               <div className="md:hidden px-4 py-2.5 border-b border-border bg-muted/20 flex items-center justify-between">
-                <Button
-                  variant={
-                    currentFiles.length > 0 &&
-                    selectedItems.length === currentFiles.length
-                      ? "default"
-                      : "ghost"
-                  }
-                  size="sm"
-                  onClick={selectAll}
-                  disabled={currentFiles.length === 0}
-                  className="h-8 px-3 text-sm font-medium"
-                >
-                  전체 선택
-                </Button>
-                <span className="text-xs font-medium text-muted-foreground">
-                  {selectedItems.length > 0 &&
-                    `${selectedItems.length}개 선택됨`}
-                </span>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={
+                      currentFiles.length > 0 &&
+                      selectedItems.length === currentFiles.length
+                    }
+                    onCheckedChange={selectAll}
+                    disabled={currentFiles.length === 0}
+                    className={checkboxStyles}
+                  />
+                  <span className="text-sm font-medium text-foreground">
+                    전체 선택
+                  </span>
+                </div>
+                {selectedItems.length > 0 && (
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {selectedItems.length}개 선택됨
+                  </span>
+                )}
               </div>
 
               {/* 데스크톱 헤더 */}
               <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-muted/30 border-b border-border text-xs font-semibold text-foreground/70 items-center">
                 <div className="col-span-1 flex items-center justify-start">
-                  <Button
-                    variant={
+                  <Checkbox
+                    checked={
                       currentFiles.length > 0 &&
                       selectedItems.length === currentFiles.length
-                        ? "default"
-                        : "ghost"
                     }
-                    size="sm"
-                    className="h-7 px-2.5 text-xs font-medium"
-                    onClick={selectAll}
+                    onCheckedChange={selectAll}
                     disabled={currentFiles.length === 0}
+                    className={checkboxStyles}
                     title="전체 선택"
-                  >
-                    전체
-                  </Button>
+                  />
                 </div>
                 <button
                   onClick={() => handleSort("name")}
-                  className={`col-span-5 flex items-center gap-1.5 transition-colors text-left ${
+                  className={`col-span-6 flex items-center gap-1.5 transition-colors text-left ${
                     sortField === "name"
                       ? "text-foreground font-semibold"
                       : "text-muted-foreground hover:text-foreground"
@@ -1250,24 +1139,8 @@ export function CloudStorage() {
                     ))}
                 </button>
                 <button
-                  onClick={() => handleSort("size")}
-                  className={`col-span-2 flex items-center gap-1.5 transition-colors text-left ${
-                    sortField === "size"
-                      ? "text-foreground font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  크기
-                  {sortField === "size" &&
-                    (sortOrder === "asc" ? (
-                      <ArrowUp className="h-4 w-4 text-primary" />
-                    ) : (
-                      <ArrowDown className="h-4 w-4 text-primary" />
-                    ))}
-                </button>
-                <button
                   onClick={() => handleSort("modified")}
-                  className={`col-span-3 flex items-center gap-1.5 transition-colors text-left ${
+                  className={`col-span-4 flex items-center gap-1.5 transition-colors text-left ${
                     sortField === "modified"
                       ? "text-foreground font-semibold"
                       : "text-muted-foreground hover:text-foreground"
@@ -1281,13 +1154,29 @@ export function CloudStorage() {
                       <ArrowDown className="h-4 w-4 text-primary" />
                     ))}
                 </button>
-                <div className="col-span-1"></div>
+                <button
+                  onClick={() => handleSort("size")}
+                  className={`col-span-1 flex items-center justify-end gap-1.5 transition-colors text-right ${
+                    sortField === "size"
+                      ? "text-foreground font-semibold"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  크기
+                  {sortField === "size" &&
+                    (sortOrder === "asc" ? (
+                      <ArrowUp className="h-4 w-4 text-primary" />
+                    ) : (
+                      <ArrowDown className="h-4 w-4 text-primary" />
+                    ))}
+                </button>
               </div>
 
               <div className="divide-y divide-border">
                 {parentFolder && (
                   <div
-                    className={fileRowStyles}
+                    className={`${fileRowStyles} cursor-pointer hover:bg-muted/30`}
+                    onClick={navigateToParent}
                     onDragOver={(e) => handleFolderDragOver(e, parentFolder.id)}
                     onDragLeave={handleFolderDragLeave}
                     onDrop={(e) => handleFolderDrop(e, parentFolder.id)}
@@ -1295,9 +1184,8 @@ export function CloudStorage() {
                     <div className="md:hidden flex items-start gap-3">
                       <div className="mt-1 flex-shrink-0 w-5" />
                       <div className="flex-1 min-w-0">
-                        <button
-                          onClick={navigateToParent}
-                          className={`flex items-center gap-2 w-full text-left cursor-pointer transition-all ${getDragOverClassName(
+                        <div
+                          className={`flex items-center gap-2 w-full text-left transition-all ${getDragOverClassName(
                             parentFolder.id,
                             true
                           )}`}
@@ -1306,34 +1194,32 @@ export function CloudStorage() {
                           <span className="font-medium text-foreground">
                             ../{parentFolder.name}
                           </span>
-                        </button>
+                        </div>
                       </div>
                     </div>
                     <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
                       <div className="col-span-1 flex items-center justify-start">
                         <div className="w-5" />
                       </div>
-                      <div className="col-span-5 flex items-center gap-3 min-w-0">
-                        <button
-                          onClick={navigateToParent}
-                          className={`flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer hover:text-primary transition-all ${getDragOverClassName(
-                            parentFolder.id,
-                            false
-                          )}`}
-                        >
-                          <Folder className="h-5 w-5 text-primary flex-shrink-0" />
-                          <span className="font-medium text-foreground truncate">
-                            ../{parentFolder.name}
-                          </span>
-                        </button>
-                      </div>
-                      <div className="col-span-2 text-sm text-muted-foreground">
-                        -
-                      </div>
-                      <div className="col-span-3 text-sm text-muted-foreground">
-                        -
-                      </div>
-                      <div className="col-span-1"></div>
+                       <div className="col-span-6 flex items-center gap-3 min-w-0">
+                         <div
+                           className={`flex items-center gap-3 min-w-0 flex-1 text-left transition-all ${getDragOverClassName(
+                             parentFolder.id,
+                             false
+                           )}`}
+                         >
+                           <Folder className="h-5 w-5 text-primary flex-shrink-0" />
+                           <span className="font-medium text-foreground truncate">
+                             ../{parentFolder.name}
+                           </span>
+                         </div>
+                       </div>
+                       <div className="col-span-4 text-sm text-muted-foreground">
+                         -
+                       </div>
+                       <div className="col-span-1 text-sm text-muted-foreground text-right">
+                         -
+                       </div>
                     </div>
                   </div>
                 )}
@@ -1354,8 +1240,17 @@ export function CloudStorage() {
                         handleItemDragStart(e, file.id, file.type)
                       }
                       onDragEnd={handleFileDragEnd}
-                      className={`${fileRowStyles} ${
-                        selectedItems.includes(file.id) ? "bg-primary/10" : ""
+                      onClick={() => toggleSelectItem(file.id)}
+                      onDoubleClick={(e) => {
+                        e.stopPropagation();
+                        if (file.type === "folder") {
+                          handleFolderClick(file);
+                        }
+                      }}
+                      className={`${fileRowStyles} cursor-pointer ${
+                        selectedItems.includes(file.id)
+                          ? "bg-primary/20"
+                          : "hover:bg-muted/30"
                       } ${draggedFileId === file.id ? "opacity-50" : ""}`}
                     >
                       <div className="md:hidden flex items-start gap-3">
@@ -1363,18 +1258,14 @@ export function CloudStorage() {
                           <Checkbox
                             checked={selectedItems.includes(file.id)}
                             onCheckedChange={() => toggleSelectItem(file.id)}
+                            onClick={(e) => e.stopPropagation()}
                             className={checkboxStyles}
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <button
-                            onClick={() =>
-                              file.type === "folder" && handleFolderClick(file)
-                            }
+                          <div
                             {...getFileDragHandlers(file)}
                             className={`flex items-center gap-2 mb-1 w-full text-left transition-all ${
-                              file.type === "folder" ? "cursor-pointer" : ""
-                            } ${
                               file.type === "folder"
                                 ? getDragOverClassName(file.id, true)
                                 : ""
@@ -1385,10 +1276,28 @@ export function CloudStorage() {
                             ) : (
                               <File className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                             )}
-                            <span className="font-medium text-foreground truncate">
+                            <span
+                              className={`font-medium truncate ${
+                                file.type === "folder"
+                                  ? "text-primary cursor-pointer hover:underline"
+                                  : "text-foreground"
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (file.type === "folder") {
+                                  handleFolderClick(file);
+                                }
+                              }}
+                              onDoubleClick={(e) => {
+                                e.stopPropagation();
+                                if (file.type === "folder") {
+                                  handleFolderClick(file);
+                                }
+                              }}
+                            >
                               {file.name}
                             </span>
-                          </button>
+                          </div>
                           <div className="flex items-center gap-3 text-xs text-muted-foreground">
                             {file.type === "file" && file.size && (
                               <span>{file.size}</span>
@@ -1396,7 +1305,6 @@ export function CloudStorage() {
                             <span>{file.modified}</span>
                           </div>
                         </div>
-                        <FileActionsMenu fileId={file.id} />
                       </div>
 
                       <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
@@ -1404,20 +1312,14 @@ export function CloudStorage() {
                           <Checkbox
                             checked={selectedItems.includes(file.id)}
                             onCheckedChange={() => toggleSelectItem(file.id)}
+                            onClick={(e) => e.stopPropagation()}
                             className={checkboxStyles}
                           />
                         </div>
-                        <div className="col-span-5 flex items-center gap-3 min-w-0">
-                          <button
-                            onClick={() =>
-                              file.type === "folder" && handleFolderClick(file)
-                            }
+                         <div className="col-span-6 flex items-center gap-3 min-w-0">
+                          <div
                             {...getFileDragHandlers(file)}
                             className={`flex items-center gap-3 min-w-0 flex-1 text-left transition-all ${
-                              file.type === "folder"
-                                ? "cursor-pointer hover:text-primary"
-                                : ""
-                            } ${
                               file.type === "folder"
                                 ? getDragOverClassName(file.id, false)
                                 : ""
@@ -1428,39 +1330,35 @@ export function CloudStorage() {
                             ) : (
                               <File className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                             )}
-                            <span className="font-medium text-foreground truncate">
+                            <span
+                              className={`font-medium truncate ${
+                                file.type === "folder"
+                                  ? "text-primary cursor-pointer hover:underline hover:text-primary"
+                                  : "text-foreground"
+                              }`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (file.type === "folder") {
+                                  handleFolderClick(file);
+                                }
+                              }}
+                              onDoubleClick={(e) => {
+                                e.stopPropagation();
+                                if (file.type === "folder") {
+                                  handleFolderClick(file);
+                                }
+                              }}
+                            >
                               {file.name}
                             </span>
-                          </button>
+                          </div>
                         </div>
-                        <div className="col-span-2 text-sm text-muted-foreground">
-                          {file.type === "file" ? file.size || "-" : "-"}
-                        </div>
-                        <div className="col-span-3 text-sm text-muted-foreground">
-                          {file.modified}
-                        </div>
-                        <div className="col-span-1 flex justify-end">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon-sm">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() => handleDownloadSingle(file.id)}
-                              >
-                                <Download className="mr-2 h-4 w-4" /> 다운로드
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                className="text-destructive"
-                                onClick={() => handleDeleteSingle(file.id)}
-                              >
-                                <Trash2 className="mr-2 h-4 w-4" /> 삭제
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
+                         <div className="col-span-4 text-sm text-muted-foreground">
+                           {file.modified}
+                         </div>
+                         <div className="col-span-1 text-sm text-muted-foreground text-right">
+                           {file.type === "file" ? file.size || "-" : "-"}
+                         </div>
                       </div>
                     </div>
                   ))
@@ -1471,20 +1369,20 @@ export function CloudStorage() {
             <div className="p-4 md:p-6">
               {/* 그리드 뷰 전체 선택 헤더 */}
               <div className="mb-4 md:mb-5 px-2 border-b border-border pb-3 flex items-center justify-between gap-3">
-                <Button
-                  variant={
-                    currentFiles.length > 0 &&
-                    selectedItems.length === currentFiles.length
-                      ? "default"
-                      : "ghost"
-                  }
-                  size="sm"
-                  onClick={selectAll}
-                  disabled={currentFiles.length === 0}
-                  className="h-8 px-3 text-sm font-medium"
-                >
-                  전체 선택
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={
+                      currentFiles.length > 0 &&
+                      selectedItems.length === currentFiles.length
+                    }
+                    onCheckedChange={selectAll}
+                    disabled={currentFiles.length === 0}
+                    className={checkboxStyles}
+                  />
+                  <span className="text-sm font-medium text-foreground">
+                    전체 선택
+                  </span>
+                </div>
                 {selectedItems.length > 0 && (
                   <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">
                     {selectedItems.length}개 선택됨
@@ -1544,14 +1442,17 @@ export function CloudStorage() {
                       onDrop={(e) =>
                         file.type === "folder" && handleFolderDrop(e, file.id)
                       }
-                      className={`group relative flex flex-col items-center p-4 rounded-lg border-2 border-border bg-card hover:bg-muted/30 hover:border-primary/30 transition-all cursor-pointer ${
-                        selectedItems.includes(file.id) ? "bg-primary/10" : ""
+                      className={`group relative flex flex-col items-center p-4 rounded-lg border-2 border-border bg-card transition-all cursor-pointer ${
+                        selectedItems.includes(file.id)
+                          ? "bg-primary/20 border-primary/50"
+                          : "hover:bg-muted/30 hover:border-primary/30"
                       } ${draggedFileId === file.id ? "opacity-50" : ""} ${
                         file.type === "folder" && dragOverFolderId === file.id
                           ? "ring-2 ring-primary border-primary bg-primary/20 shadow-sm"
                           : ""
                       }`}
-                      onClick={() =>
+                      onClick={() => toggleSelectItem(file.id)}
+                      onDoubleClick={() =>
                         file.type === "folder" && handleFolderClick(file)
                       }
                     >
@@ -1579,17 +1480,21 @@ export function CloudStorage() {
                             className={`${checkboxStyles} bg-background/95 backdrop-blur-sm shadow-md hover:scale-110`}
                           />
                         </div>
-                        <div
-                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <FileActionsMenu fileId={file.id} />
-                        </div>
                       </div>
                       <div className="w-full text-center">
                         <p
-                          className="text-sm font-medium text-foreground truncate"
+                          className={`text-sm font-medium truncate ${
+                            file.type === "folder"
+                              ? "text-primary cursor-pointer hover:underline"
+                              : "text-foreground"
+                          }`}
                           title={file.name}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (file.type === "folder") {
+                              handleFolderClick(file);
+                            }
+                          }}
                         >
                           {file.name}
                         </p>
