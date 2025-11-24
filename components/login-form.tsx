@@ -201,7 +201,7 @@ export function LoginForm() {
             <Button
               type="button"
               variant="outline"
-              className="w-full border-border hover:bg-secondary text-secondary-foreground font-medium h-12 transition-all bg-transparent"
+              className="w-full hover:bg-primary/10 h-12"
             >
               회원가입
             </Button>
