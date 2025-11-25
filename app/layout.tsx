@@ -4,6 +4,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
 import { Footer } from "@/components/footer";
+import { PWARegister } from "@/components/pwa-register";
+import { PWAMeta } from "@/components/pwa-meta";
 import "./globals.css";
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -75,7 +77,26 @@ export const metadata: Metadata = {
         type: "image/svg+xml",
       },
     ],
-    apple: "/apple-icon.png",
+    apple: [
+      {
+        url: "/apple-icon-180x180.png",
+        sizes: "180x180",
+        type: "image/png",
+      },
+    ],
+  },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Joon Drive",
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+    "apple-mobile-web-app-title": "Joon Drive",
+    "theme-color": "#000000",
   },
 };
 
@@ -85,8 +106,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body className={`font-sans antialiased flex flex-col min-h-screen`}>
+        <PWAMeta />
+        <PWARegister />
         <main className="flex-1">{children}</main>
         <Footer />
         <Toaster position="top-center" richColors />

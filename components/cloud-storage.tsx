@@ -1594,7 +1594,7 @@ export function CloudStorage() {
                           className="text-xs font-normal text-foreground break-words"
                           title={`../${parentFolder.name}`}
                         >
-                          ../{parentFolder.name}
+                            ../{parentFolder.name}
                         </p>
                       </div>
                     </div>
