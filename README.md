@@ -1,40 +1,48 @@
 # Joon Drive
 
-클라우드 스토리지 서비스 프론트엔드 애플리케이션입니다.
+**당신의 모든 파일을 위한 가장 안전하고 편리한 공간, Joon Drive**
 
-## 프로젝트 소개
+Joon Drive는 복잡한 설정 없이 누구나 쉽게 사용할 수 있는 클라우드 스토리지 서비스입니다. 소중한 추억이 담긴 사진부터 업무용 중요 문서까지, 모든 데이터를 안전하게 보관하고 언제 어디서나 자유롭게 꺼내보세요.
 
-Joon Drive는 사용자가 파일을 업로드, 다운로드, 관리할 수 있는 클라우드 스토리지 서비스의 프론트엔드입니다. 
-Next.js와 React를 기반으로 구축되었으며, 세션 기반 인증 시스템을 사용합니다.
+![Joon Drive Banner](/icon-512x512.png)
 
-## 주요 기능
+## ✨ 주요 기능
 
-- 🔐 사용자 인증 (로그인, 회원가입, 비밀번호 찾기)
-- 📁 파일 업로드 및 다운로드
-- 🔍 파일 검색
-- ⚙️ 계정 설정
-- 🎨 다크 모드 지원
+### 🔒 철통 같은 보안
+업계 최고 수준의 암호화 기술로 당신의 데이터를 안전하게 보호합니다. 오직 당신만이 파일에 접근할 수 있습니다.
 
-## 기술 스택
+### 🚀 초고속 파일 전송
+대용량 파일도 순식간에 업로드하고 다운로드하세요. 쾌적한 속도로 업무 효율을 높여드립니다.
 
-- **Framework**: Next.js 16
-- **UI Library**: React 19
-- **Language**: TypeScript 5
-- **Styling**: Tailwind CSS
-- **UI Components**: Radix UI
-- **Form Handling**: React Hook Form + Zod
-- **HTTP Client**: Axios
+### 📱 완벽한 모바일 경험 (PWA)
+별도의 앱 설치 없이도 홈 화면에 추가하여 네이티브 앱처럼 사용하세요. iOS와 Android 어디서든 부드럽고 직관적인 사용성을 제공합니다.
+- **아이폰 유저를 위한 최적화**: 노치 디자인까지 고려한 깔끔한 UI를 경험해보세요.
 
-## 요구사항
+### 🤝 간편한 공유
+링크 하나로 친구, 동료와 파일을 손쉽게 공유하세요. 복잡한 권한 설정 없이도 안전하게 전달할 수 있습니다.
 
-- Node.js 22 이상
-- npm 또는 yarn
+### 🌙 눈이 편안한 다크 모드
+밤늦은 작업에도 눈이 피로하지 않도록, 시스템 설정에 맞춰 자동으로 전환되는 다크 모드를 지원합니다.
 
-## 설치 및 실행
+---
 
-### 개발 환경
+## 🛠 기술 스택 (For Developers)
+
+Joon Drive는 최신 웹 기술을 기반으로 안정적이고 빠른 성능을 제공합니다.
+
+- **Framework**: Next.js 15 (App Router)
+- **Style**: Tailwind CSS
+- **Language**: TypeScript
+- **PWA**: Offline Support & Native-like UX
+
+## 🚀 시작하기
+
+### 설치 및 실행
 
 ```bash
+# 저장소 복제
+git clone https://github.com/kwonjh0406/joondrive-fe.git
+
 # 의존성 설치
 npm install
 
@@ -42,58 +50,8 @@ npm install
 npm run dev
 ```
 
-개발 서버는 [http://localhost:3000](http://localhost:3000)에서 실행됩니다.
+브라우저에서 [http://localhost:3000](http://localhost:3000)으로 접속하여 확인하실 수 있습니다.
 
-### 프로덕션 빌드
+---
 
-```bash
-# 프로덕션 빌드
-npm run build
-
-# 프로덕션 서버 실행
-npm start
-```
-
-## 환경 변수
-
-프로젝트 루트에 `.env.local` 파일을 생성하고 다음 변수를 설정하세요:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8080/api
-```
-
-## Docker 실행
-
-```bash
-# 이미지 빌드
-docker build -t joondrive-fe .
-
-# 컨테이너 실행
-docker run -p 3000:3000 --env-file .env.local joondrive-fe
-```
-
-## 프로젝트 구조
-
-```
-joondrive-fe/
-├── app/                    # Next.js App Router
-│   ├── api/               # API Routes
-│   ├── login/             # 로그인 페이지
-│   ├── signup/            # 회원가입 페이지
-│   └── account-settings/  # 계정 설정 페이지
-├── components/            # React 컴포넌트
-├── lib/                   # 유틸리티 함수
-├── proxy.ts               # 인증 프록시
-└── public/                # 정적 파일
-```
-
-## 스크립트
-
-- `npm run dev` - 개발 서버 실행
-- `npm run build` - 프로덕션 빌드
-- `npm run start` - 프로덕션 서버 실행
-- `npm run lint` - ESLint 실행
-
-## 라이선스
-
-Private
+© 2025 Joon Drive. All rights reserved.
