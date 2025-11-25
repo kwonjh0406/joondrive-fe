@@ -795,7 +795,7 @@ export function CloudStorage() {
 
   const checkboxStyles =
     "h-5 w-5 rounded-[4px] border-2 border-gray-300 dark:border-gray-600 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all hover:border-primary hover:bg-primary/5";
-  const fileRowStyles = "px-4 md:px-6 py-4 transition-colors";
+  const fileRowStyles = "px-4 md:px-6 py-3 transition-colors border-b border-transparent";
 
   const navigateToParent = () => {
     setFiles([]);
@@ -1161,7 +1161,7 @@ export function CloudStorage() {
                     disabled={currentFiles.length === 0}
                     className={checkboxStyles}
                   />
-                  <span className="text-sm font-medium text-foreground">
+                  <span className="text-sm text-foreground">
                     전체 선택
                   </span>
                 </div>
@@ -1339,7 +1339,7 @@ export function CloudStorage() {
                         }
                       }}
                       className={`${fileRowStyles} cursor-pointer ${selectedItems.includes(file.id)
-                        ? "bg-primary/20"
+                        ? "bg-primary/20 border-b-border"
                         : "hover:bg-muted/30"
                         } ${draggedFileId === file.id ? "opacity-50" : ""}`}
                     >
@@ -1388,11 +1388,11 @@ export function CloudStorage() {
                               {file.name}
                             </span>
                           </div>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <div className="flex flex-col gap-0.5 text-[11px] text-muted-foreground mt-1">
+                            <span>{file.modified}</span>
                             {file.type === "file" && file.size && (
                               <span>{file.size}</span>
                             )}
-                            <span>{file.modified}</span>
                           </div>
                         </div>
                       </div>
