@@ -1196,7 +1196,7 @@ export function CloudStorage() {
 
               {/* 데스크톱 헤더 */}
               <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-muted/30 border-b border-border text-xs font-medium text-foreground/70 items-center">
-                <div className="col-span-1 flex items-center justify-start">
+                <div className="col-span-1 flex items-center justify-center">
                   <Checkbox
                     checked={
                       currentFiles.length > 0 &&
@@ -1267,8 +1267,8 @@ export function CloudStorage() {
                     onDragLeave={handleFolderDragLeave}
                     onDrop={(e) => handleFolderDrop(e, parentFolder.id)}
                   >
-                    <div className="md:hidden flex items-start gap-3">
-                      <div className="mt-1 flex-shrink-0 w-5" />
+                    <div className="md:hidden flex items-center gap-3">
+                      <div className="flex-shrink-0 w-5 h-5" />
                       <div className="flex-1 min-w-0">
                         <div
                           className={`flex items-center gap-2 w-full text-left transition-all ${getDragOverClassName(
@@ -1276,7 +1276,7 @@ export function CloudStorage() {
                             true
                           )}`}
                         >
-                          <Folder className="h-6 w-6 text-yellow-500 flex-shrink-0" />
+                          <Folder className="h-5 w-5 text-yellow-500 flex-shrink-0" />
                           <span className="font-normal text-foreground">
                             ../{parentFolder.name}
                           </span>
@@ -1284,8 +1284,8 @@ export function CloudStorage() {
                       </div>
                     </div>
                     <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
-                      <div className="col-span-1 flex items-center justify-start">
-                        <div className="w-5" />
+                      <div className="col-span-1 flex items-center justify-center">
+                        <div className="w-5 h-5" />
                       </div>
                       <div className="col-span-6 flex items-center gap-3 min-w-0">
                         <div
@@ -1294,8 +1294,8 @@ export function CloudStorage() {
                             false
                           )}`}
                         >
-                          <Folder className="h-6 w-6 text-yellow-500 flex-shrink-0" />
-                          <span className="font-normal text-foreground truncate">
+                          <Folder className="h-5 w-5 text-yellow-500 flex-shrink-0" />
+                          <span className="font-normal text-foreground truncate leading-normal">
                             ../{parentFolder.name}
                           </span>
                         </div>
@@ -1370,7 +1370,7 @@ export function CloudStorage() {
                       } ${draggedFileId === file.id ? "opacity-50" : ""}`}
                     >
                       <div className="md:hidden flex items-center gap-3">
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink-0 flex items-center">
                           <Checkbox
                             checked={selectedItems.includes(file.id)}
                             onCheckedChange={() => toggleSelectItem(file.id)}
@@ -1397,7 +1397,7 @@ export function CloudStorage() {
                               />
                             )}
                             <span
-                              className={`font-normal truncate ${
+                              className={`font-normal truncate leading-normal ${
                                 file.type === "folder"
                                   ? "text-primary cursor-pointer hover:underline"
                                   : "text-foreground"
@@ -1430,7 +1430,7 @@ export function CloudStorage() {
                       </div>
 
                       <div className="hidden md:grid md:grid-cols-12 gap-4 items-center">
-                        <div className="col-span-1 flex items-center justify-start">
+                        <div className="col-span-1 flex items-center justify-center">
                           <Checkbox
                             checked={selectedItems.includes(file.id)}
                             onCheckedChange={() => toggleSelectItem(file.id)}
@@ -1448,16 +1448,16 @@ export function CloudStorage() {
                             }`}
                           >
                             {file.type === "folder" ? (
-                              <Folder className="h-6 w-6 text-yellow-500 flex-shrink-0" />
+                              <Folder className="h-5 w-5 text-yellow-500 flex-shrink-0" />
                             ) : (
                               <File
-                                className={`h-6 w-6 ${getFileIconColor(
+                                className={`h-5 w-5 ${getFileIconColor(
                                   file
                                 )} flex-shrink-0`}
                               />
                             )}
                             <span
-                              className={`font-normal truncate ${
+                              className={`font-normal truncate leading-normal ${
                                 file.type === "folder"
                                   ? "text-primary cursor-pointer hover:underline hover:text-primary"
                                   : "text-foreground"
