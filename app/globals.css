@@ -5,81 +5,67 @@
 
 :root {
   --background: hsl(0 0% 100%);
-  --foreground: hsl(215 25% 18%);
+  --foreground: hsl(240 10% 3.9%);
   --card: hsl(0 0% 100%);
-  --card-foreground: oklch(0.25 0.02 264);
+  --card-foreground: hsl(240 10% 3.9%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: oklch(0.25 0.02 264);
-  /* primary를 더 진한 파란색으로 변경하여 배경과 대비 강화 */
-  --primary: #202632;
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: #0064ff;
-  --secondary-foreground: oklch(0.25 0.02 264);
-  --muted: hsl(215 15% 93%);
-  --muted-foreground: oklch(0.55 0.01 264);
-  /* accent를 primary보다 더 어두운 초록색으로 변경하여 hover 시 흰색 글자가 잘 보이도록 설정 */
-  --accent: hsl(215 25% 85%);
-  --accent-foreground: hsl(215 45% 32%);
+  --popover-foreground: hsl(240 10% 3.9%);
+  --primary: hsl(217 91% 60%); /* Google Blue-ish */
+  --primary-foreground: hsl(0 0% 98%);
+  --secondary: hsl(240 4.8% 95.9%);
+  --secondary-foreground: hsl(240 5.9% 10%);
+  --muted: hsl(240 4.8% 95.9%);
+  --muted-foreground: hsl(240 3.8% 46.1%);
+  --accent: hsl(210 40% 96.1%); /* Very light blue for hover */
+  --accent-foreground: hsl(240 5.9% 10%);
   --destructive: hsl(0 84.2% 60.2%);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: hsl(218, 18%, 88%);
-  --input: hsl(0, 0%, 95%);
-  --ring: hsl(215 45% 32%);
-  --chart-1: hsl(215 45% 32%);
-  --chart-2: hsl(220 38% 45%);
-  --chart-3: hsl(210 32% 58%);
-  --chart-4: hsl(205 25% 68%);
-  --chart-5: hsl(218 52% 22%);
-  --radius: 0.5rem;
-  --sidebar: hsl(215 12% 97%);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(240 5.9% 90%);
+  --input: hsl(240 5.9% 90%);
+  --ring: hsl(217 91% 60%);
+  --radius: 1rem; /* Larger radius for modern feel */
+  --sidebar: hsl(0 0% 98%); /* Slightly off-white sidebar */
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217 91% 60%);
 }
 
 .dark {
-  --background: hsl(215 28% 9%);
-  --foreground: hsl(215 15% 92%);
-  --card: hsl(215 28% 9%);
-  --card-foreground: oklch(0.95 0.005 264);
-  --popover: hsl(215 28% 9%);
-  --popover-foreground: oklch(0.95 0.005 264);
-  /* 다크 모드에서 primary를 더 밝은 파란색으로 변경 */
-  --primary: hsl(215 45% 62%);
-  --primary-foreground: hsl(222.2 47.4% 11.2%);
-  --secondary: hsl(215 20% 18%);
-  --secondary-foreground: oklch(0.95 0.005 264);
-  --muted: hsl(215 20% 18%);
-  --muted-foreground: oklch(0.65 0.01 264);
-  /* 다크 모드 accent를 더 밝게 하여 hover 시 대비 강화 */
-  --accent: hsl(215 25% 28%);
-  --accent-foreground: hsl(222.2 47.4% 11.2%);
-  --destructive: hsl(0 72.2% 50.6%);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: hsl(215 20% 18%);
-  --input: hsl(215 20% 18%);
-  --ring: hsl(215 45% 62%);
-  --chart-1: hsl(215 45% 62%);
-  --chart-2: hsl(220 38% 55%);
-  --chart-3: hsl(210 32% 68%);
-  --chart-4: hsl(205 25% 78%);
-  --chart-5: hsl(218 52% 42%);
-  --sidebar: hsl(215 25% 12%);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.269 0 0);
-  --sidebar-ring: oklch(0.439 0 0);
+  --background: hsl(240 10% 3.9%);
+  --foreground: hsl(0 0% 98%);
+  --card: hsl(240 10% 3.9%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(240 10% 3.9%);
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: hsl(217 91% 60%);
+  --primary-foreground: hsl(0 0% 98%);
+  --secondary: hsl(240 3.7% 15.9%);
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: hsl(240 3.7% 15.9%);
+  --muted-foreground: hsl(240 5% 64.9%);
+  --accent: hsl(240 3.7% 15.9%);
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(240 3.7% 15.9%);
+  --input: hsl(240 3.7% 15.9%);
+  --ring: hsl(240 4.9% 83.9%);
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217 91% 60%);
 }
 
 @theme inline {
-  --font-sans: "Geist", "Geist Fallback";
+  --font-sans: "Inter", "Geist", "Geist Fallback", sans-serif;
   --font-mono: "Geist Mono", "Geist Mono Fallback";
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -100,11 +86,6 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
