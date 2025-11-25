@@ -4,7 +4,14 @@ import { useEffect } from "react";
 
 export function PWAMeta() {
   useEffect(() => {
-    // Viewport 설정
+    // 1. 기존 서비스 워커 강제 해제 (캐시 문제 해결)
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        regs.forEach((reg) => reg.unregister());
+      });
+    }
+
+    // 2. Viewport 설정 (viewport-fit=cover 포함)
     const viewport = document.querySelector('meta[name="viewport"]');
     if (viewport) {
       viewport.setAttribute(
@@ -19,7 +26,7 @@ export function PWAMeta() {
       document.head.appendChild(meta);
     }
 
-    // theme-color 메타 태그 추가 (iOS PWA 상단 노치 영역 색상)
+    // 3. theme-color 메타 태그 강제 설정 (iOS PWA 상단 노치 영역 색상)
     const themeColor = document.querySelector('meta[name="theme-color"]');
     if (themeColor) {
       themeColor.setAttribute("content", "#ffffff");
@@ -30,7 +37,7 @@ export function PWAMeta() {
       document.head.appendChild(meta);
     }
 
-    // iOS 전용 apple-mobile-web-app-status-bar-style
+    // 4. iOS 전용 apple-mobile-web-app-status-bar-style 설정
     const statusBarStyle = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
     if (statusBarStyle) {
       statusBarStyle.setAttribute("content", "default");
