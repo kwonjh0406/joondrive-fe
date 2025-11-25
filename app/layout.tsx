@@ -1,5 +1,5 @@
 import type React from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
@@ -10,6 +10,15 @@ import "./globals.css";
 
 const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
+
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: {
@@ -83,20 +92,14 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
 
-  // 🔥 iOS PWA 상단바 색 여기가 가장 중요
-  themeColor: "#ffffff",
-
   appleWebApp: {
     capable: true,
     title: "Joon Drive",
-    statusBarStyle: "default", // 흰색 배경 + 검은색 아이콘
+    statusBarStyle: "default",
   },
 
-  // 🔥 theme-color 및 status-bar-style 제거
   other: {
     "mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-title": "Joon Drive"
   },
 };
 
