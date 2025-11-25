@@ -86,16 +86,21 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/manifest.json",
+
+  // 🔥 iOS PWA 상단바 색 여기가 가장 중요
+  themeColor: "#ffffff",
+
   appleWebApp: {
     capable: true,
     title: "Joon Drive",
+    statusBarStyle: "default", // 가장 안정적인 iOS 흰색 배경 + 검정 아이콘
   },
+
+  // 🔥 theme-color 및 status-bar-style 제거
   other: {
     "mobile-web-app-capable": "yes",
     "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-status-bar-style": "white-translucent",
-    "apple-mobile-web-app-title": "Joon Drive",
-    "theme-color": "#ffffff",
+    "apple-mobile-web-app-title": "Joon Drive"
   },
 };
 
@@ -106,7 +111,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body className={`font-sans antialiased flex flex-col min-h-screen`}>
+      <body className="font-sans antialiased flex flex-col min-h-screen">
         <PWAMeta />
         <PWARegister />
         <main className="flex-1">{children}</main>
