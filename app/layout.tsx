@@ -93,7 +93,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: "Joon Drive",
-    statusBarStyle: "black-translucent", // 앱 배경색이 노치 영역까지 확장됨
+    statusBarStyle: "default", // 흰색 배경 + 검은색 아이콘
   },
 
   // 🔥 theme-color 및 status-bar-style 제거
