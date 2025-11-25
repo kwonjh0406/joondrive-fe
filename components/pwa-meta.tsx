@@ -31,10 +31,10 @@ export function PWAMeta() {
 
     // iOS 전체화면을 위한 메타 태그
     addMetaTag("apple-mobile-web-app-capable", "yes");
-    addMetaTag("apple-mobile-web-app-status-bar-style", "default");
+    addMetaTag("apple-mobile-web-app-status-bar-style", "black-translucent");
     addMetaTag("apple-mobile-web-app-title", "Joon Drive");
     addMetaTag("mobile-web-app-capable", "yes");
-    addMetaTag("theme-color", "#ffffff");
+    addMetaTag("theme-color", "#f7f7fb");
     
     // Viewport 설정 (전체화면을 위해)
     const viewport = document.querySelector('meta[name="viewport"]');
