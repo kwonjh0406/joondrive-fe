@@ -1496,7 +1496,8 @@ export function CloudStorage() {
           ) : (
             <div>
               {/* 그리드 뷰 전체 선택 헤더 */}
-              <div className="px-4 py-2.5 border-b border-border bg-muted/20 flex items-center justify-between gap-3">
+              {/* 모바일 헤더 */}
+              <div className="md:hidden px-4 py-2.5 border-b border-border bg-muted/20 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Checkbox
                     checked={
@@ -1514,6 +1515,22 @@ export function CloudStorage() {
                     {selectedItems.length}개 선택됨
                   </span>
                 )}
+              </div>
+
+              {/* 데스크톱 헤더 */}
+              <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-muted/30 border-b border-border text-xs font-medium text-foreground/70 items-center">
+                <div className="col-span-1 flex items-center justify-center">
+                  <Checkbox
+                    checked={
+                      currentFiles.length > 0 &&
+                      selectedItems.length === currentFiles.length
+                    }
+                    onCheckedChange={selectAll}
+                    disabled={currentFiles.length === 0}
+                    className={checkboxStyles}
+                    title="전체 선택"
+                  />
+                </div>
               </div>
               {isLoadingFiles ? (
                 <div className="py-12 flex items-center justify-center">
