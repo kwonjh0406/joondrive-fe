@@ -172,7 +172,7 @@ export function LoginForm() {
             </div>
             <Link
               href="/forgot-password"
-              className="text-sm text-primary hover:text-accent transition-colors"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               비밀번호 찾기
             </Link>
