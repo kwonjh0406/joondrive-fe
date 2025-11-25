@@ -795,7 +795,7 @@ export function CloudStorage() {
 
   const checkboxStyles =
     "h-5 w-5 rounded-[4px] border-2 border-gray-300 dark:border-gray-600 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all hover:border-primary hover:bg-primary/5";
-  const fileRowStyles = "px-4 md:px-6 py-3 transition-colors border-b border-transparent";
+  const fileRowStyles = "px-4 md:px-6 py-3 transition-colors border-b border-border";
 
   const navigateToParent = () => {
     setFiles([]);
@@ -1343,8 +1343,8 @@ export function CloudStorage() {
                         : "hover:bg-muted/30"
                         } ${draggedFileId === file.id ? "opacity-50" : ""}`}
                     >
-                      <div className="md:hidden flex items-start gap-3">
-                        <div className="mt-1 flex-shrink-0">
+                      <div className="md:hidden flex items-center gap-3">
+                        <div className="flex-shrink-0">
                           <Checkbox
                             checked={selectedItems.includes(file.id)}
                             onCheckedChange={() => toggleSelectItem(file.id)}
@@ -1352,18 +1352,18 @@ export function CloudStorage() {
                             className={checkboxStyles}
                           />
                         </div>
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-1 min-w-0 flex items-center gap-2">
                           <div
                             {...getFileDragHandlers(file)}
-                            className={`flex items-center gap-2 mb-1 w-full text-left transition-all ${file.type === "folder"
+                            className={`flex items-center gap-2 flex-1 min-w-0 text-left transition-all ${file.type === "folder"
                               ? getDragOverClassName(file.id, true)
                               : ""
                               }`}
                           >
                             {file.type === "folder" ? (
-                              <Folder className="h-6 w-6 text-yellow-500 flex-shrink-0" />
+                              <Folder className="h-5 w-5 text-yellow-500 flex-shrink-0" />
                             ) : (
-                              <File className={`h-6 w-6 ${getFileIconColor(file)} flex-shrink-0`} />
+                              <File className={`h-5 w-5 ${getFileIconColor(file)} flex-shrink-0`} />
                             )}
                             <span
                               className={`font-medium truncate ${file.type === "folder"
@@ -1388,12 +1388,12 @@ export function CloudStorage() {
                               {file.name}
                             </span>
                           </div>
-                          <div className="flex flex-col gap-0.5 text-[11px] text-muted-foreground mt-1">
-                            <span>{file.modified}</span>
-                            {file.type === "file" && file.size && (
-                              <span>{file.size}</span>
-                            )}
-                          </div>
+                        </div>
+                        <div className="flex flex-col items-end gap-0.5 text-[11px] text-muted-foreground flex-shrink-0">
+                          <span>{file.modified}</span>
+                          {file.type === "file" && file.size && (
+                            <span>{file.size}</span>
+                          )}
                         </div>
                       </div>
 
@@ -1456,9 +1456,9 @@ export function CloudStorage() {
               </div>
             </>
           ) : (
-            <div className="p-4 md:p-6">
+            <div>
               {/* 그리드 뷰 전체 선택 헤더 */}
-              <div className="mb-4 md:mb-5 px-2 border-b border-border pb-3 flex items-center justify-between gap-3">
+              <div className="mb-4 md:mb-5 px-4 md:px-6 border-b border-border pb-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Checkbox
                     checked={
@@ -1469,7 +1469,7 @@ export function CloudStorage() {
                     disabled={currentFiles.length === 0}
                     className={checkboxStyles}
                   />
-                  <span className="text-sm font-medium text-foreground">
+                  <span className="text-sm text-foreground">
                     전체 선택
                   </span>
                 </div>
@@ -1518,7 +1518,7 @@ export function CloudStorage() {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 px-4 md:px-6 pb-4 md:pb-6">
                   {parentFolder && (
                     <div
                       className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-all cursor-pointer ${dragOverFolderId === parentFolder.id
