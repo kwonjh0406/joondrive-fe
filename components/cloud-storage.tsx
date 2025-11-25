@@ -1458,7 +1458,7 @@ export function CloudStorage() {
           ) : (
             <div>
               {/* 그리드 뷰 전체 선택 헤더 */}
-              <div className="mb-4 md:mb-5 px-4 md:px-6 border-b border-border pb-3 flex items-center justify-between gap-3">
+              <div className="px-4 py-2.5 border-b border-border bg-muted/20 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Checkbox
                     checked={
