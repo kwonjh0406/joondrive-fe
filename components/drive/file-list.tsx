@@ -261,7 +261,6 @@ export function FileList({
                                         ? (e) => onFolderDrop(e, file.id)
                                         : undefined
                                 }
-                                isLast={index === files.length - 1}
                             />
                         ))
                     )}

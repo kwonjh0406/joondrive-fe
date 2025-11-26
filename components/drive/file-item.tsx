@@ -26,7 +26,6 @@ interface FileItemProps {
     onDragOver?: (e: React.DragEvent) => void;
     onDragLeave?: () => void;
     onDrop?: (e: React.DragEvent) => void;
-    isLast?: boolean;
 }
 
 export function FileItem({
@@ -42,7 +41,6 @@ export function FileItem({
     onDragOver,
     onDragLeave,
     onDrop,
-    isLast,
 }: FileItemProps) {
     const getDragOverClassName = (isMobile: boolean = false) => {
         if (dragOver) {
@@ -116,7 +114,7 @@ export function FileItem({
                 }
             }}
             className={`${fileRowStyles} cursor-pointer ${selected ? "bg-primary/10" : "hover:bg-muted/30"
-                } ${isDragging ? "opacity-50" : ""} ${isLast ? "border-b-0" : ""}`}
+                } ${isDragging ? "opacity-50" : ""}`}
         >
             <div className="md:hidden flex items-center gap-3">
                 <div className="flex-shrink-0 flex items-center">
