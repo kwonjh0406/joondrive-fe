@@ -115,8 +115,7 @@ export function FileItem({
                     onNavigate(file);
                 }
             }}
-            className={`${fileRowStyles} ${isLast ? "" : "border-b border-border"} cursor-pointer ${selected ? "bg-primary/10" : "hover:bg-muted/30"
-                } ${isDragging ? "opacity-50" : ""}`}
+            className={`${fileRowStyles} cursor-pointer ${selected ? "bg-primary/10" : "hover:bg-muted/30"} ${isDragging ? "opacity-50" : ""} ${isLast ? "!border-b-0" : "border-b border-border"}`}
         >
             <div className="md:hidden flex items-center gap-3">
                 <div className="flex-shrink-0 flex items-center">
