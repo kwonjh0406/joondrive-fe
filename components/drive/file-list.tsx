@@ -152,10 +152,10 @@ export function FileList({
                     </button>
                 </div>
 
-                <div className="divide-y divide-border">
+                <div>
                     {parentFolder && (
                         <div
-                            className={`${fileRowStyles} cursor-pointer hover:bg-muted/30`}
+                            className={`${fileRowStyles} border-b border-border cursor-pointer hover:bg-muted/30`}
                             onClick={onNavigateParent}
                             onDragOver={(e) => onFolderDragOver(e, parentFolder.id)}
                             onDragLeave={onFolderDragLeave}
