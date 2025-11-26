@@ -236,7 +236,7 @@ export function FileList({
                             </div>
                         </div>
                     ) : (
-                        files.map((file) => (
+                        files.map((file, index) => (
                             <FileItem
                                 key={file.id}
                                 file={file}
@@ -261,6 +261,7 @@ export function FileList({
                                         ? (e) => onFolderDrop(e, file.id)
                                         : undefined
                                 }
+                                isLast={index === files.length - 1}
                             />
                         ))
                     )}
