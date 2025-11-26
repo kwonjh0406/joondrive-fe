@@ -574,9 +574,78 @@ export function CloudStorage() {
     return `${formattedSize} ${sizes[i]}`;
   };
 
+  const resolveFileNameFromHeader = (
+    headerValue: string | null,
+    fallback: string
+  ) => {
+    if (!headerValue) return fallback;
+
+    const utf8Match = headerValue.match(/filename\*=UTF-8''(.+)/i);
+    if (utf8Match) return decodeURIComponent(utf8Match[1]);
+
+    const match = headerValue.match(/filename="?([^";]+)"?/i);
+    return match ? match[1] : fallback;
+  };
+
   const handleDownload = async () => {
     if (selectedItems.length === 0)
       return toast.error("다운로드할 파일을 선택해주세요.");
+
+    const isSingleSelection = selectedItems.length === 1;
+    const singleFileId = selectedItems[0];
+
+    if (isSingleSelection && singleFileId != null) {
+      try {
+        toast.loading("파일 다운로드 중...", { id: "download" });
+
+        const downloadUrl = `${BASE}/download/${singleFileId}`;
+        const res = await fetch(downloadUrl, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!res.ok) {
+          let errorMessage = `다운로드 실패 (상태 코드: ${res.status})`;
+          try {
+            const errorData = await res.json();
+            errorMessage =
+              errorData?.message || errorData?.error || errorMessage;
+          } catch {
+            // JSON 파싱 실패 시 기본 메시지 사용
+          }
+          throw new Error(errorMessage);
+        }
+
+        const blob = await res.blob();
+        const contentDisposition = res.headers.get("content-disposition");
+        const fallbackName =
+          files.find((file) => file.id === singleFileId)?.name || "download";
+        const fileName = resolveFileNameFromHeader(
+          contentDisposition,
+          fallbackName
+        );
+
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        toast.success(`${fileName} 다운로드가 완료되었습니다.`, {
+          id: "download",
+        });
+        return;
+      } catch (e) {
+        console.error("handleDownload single error:", e);
+        const errorMessage =
+          e instanceof Error ? e.message : "다운로드 중 오류 발생";
+        toast.error(errorMessage, { id: "download" });
+        return;
+      }
+    }
 
     try {
       toast.loading(`${selectedItems.length}개 파일 압축 중...`, {
@@ -605,18 +674,10 @@ export function CloudStorage() {
       const blob = await res.blob();
       const contentDisposition = res.headers.get("content-disposition");
 
-      let fileName = "download.zip";
-      if (contentDisposition) {
-        const utf8Match = contentDisposition.match(/filename\*=UTF-8''(.+)/i);
-        if (utf8Match) {
-          fileName = decodeURIComponent(utf8Match[1]);
-        } else {
-          const match = contentDisposition.match(/filename="?([^";]+)"?/i);
-          if (match) {
-            fileName = match[1];
-          }
-        }
-      }
+      const fileName = resolveFileNameFromHeader(
+        contentDisposition,
+        "download.zip"
+      );
 
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -1594,7 +1655,7 @@ export function CloudStorage() {
                           className="text-xs font-normal text-foreground break-words"
                           title={`../${parentFolder.name}`}
                         >
-                            ../{parentFolder.name}
+                          ../{parentFolder.name}
                         </p>
                       </div>
                     </div>
