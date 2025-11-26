@@ -853,7 +853,7 @@ export function CloudStorage() {
   };
 
   const checkboxStyles =
-    "h-5 w-5 rounded-[4px] border-2 border-gray-300 dark:border-gray-600 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all hover:border-primary hover:bg-primary/5";
+    "h-5 w-5 rounded-[4px] border border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all hover:border-primary hover:bg-primary/5";
   const fileRowStyles =
     "px-4 md:px-6 py-3 transition-colors border-b border-border last:border-b-0";
 
