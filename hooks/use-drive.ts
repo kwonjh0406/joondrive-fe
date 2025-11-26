@@ -3,19 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 
-export type ViewMode = "list" | "grid";
-export type SortField = "name" | "modified" | "size";
-export type SortOrder = "asc" | "desc";
-
-export interface FileItem {
-  id: number;
-  name: string;
-  type: "file" | "folder";
-  size?: string;
-  modified: string;
-  parentId: number | null;
-  mimeType?: string;
-}
+import type { ViewMode, SortField, SortOrder, FileItem } from "@/types/drive";
 
 interface UseDriveProps {
   initialParentId?: number | null;
@@ -85,8 +73,8 @@ export function useDrive({ initialParentId = null }: UseDriveProps = {}) {
       size < 1
         ? size.toFixed(2)
         : size >= 100
-        ? Math.round(size).toString()
-        : size.toFixed(1);
+          ? Math.round(size).toString()
+          : size.toFixed(1);
 
     return `${formattedSize} ${sizes[i]}`;
   };
