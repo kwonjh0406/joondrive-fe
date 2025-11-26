@@ -568,8 +568,8 @@ export function CloudStorage() {
       size < 1
         ? size.toFixed(2)
         : size >= 100
-        ? Math.round(size).toString()
-        : size.toFixed(1);
+          ? Math.round(size).toString()
+          : size.toFixed(1);
 
     return `${formattedSize} ${sizes[i]}`;
   };
@@ -855,7 +855,7 @@ export function CloudStorage() {
   const checkboxStyles =
     "h-5 w-5 rounded-[4px] border-2 border-gray-300 dark:border-gray-600 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all hover:border-primary hover:bg-primary/5";
   const fileRowStyles =
-    "px-4 md:px-6 py-3 transition-colors border-b border-border";
+    "px-4 md:px-6 py-3 transition-colors border-b border-border last:border-b-0";
 
   const navigateToParent = () => {
     setFiles([]);
@@ -1108,11 +1108,10 @@ export function CloudStorage() {
               {idx > 0 && <span className="text-muted-foreground">/</span>}
               <button
                 onClick={() => handleBreadcrumbClick(crumb.id, idx)}
-                className={`hover:text-primary transition-colors ${
-                  idx === breadcrumbPath.length - 1
-                    ? "text-foreground font-medium"
-                    : "text-muted-foreground"
-                }`}
+                className={`hover:text-primary transition-colors ${idx === breadcrumbPath.length - 1
+                  ? "text-foreground font-medium"
+                  : "text-muted-foreground"
+                  }`}
               >
                 {crumb.name}
               </button>
@@ -1271,11 +1270,10 @@ export function CloudStorage() {
                 </div>
                 <button
                   onClick={() => handleSort("name")}
-                  className={`col-span-6 flex items-center gap-1.5 transition-colors text-left ${
-                    sortField === "name"
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`col-span-6 flex items-center gap-1.5 transition-colors text-left ${sortField === "name"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   이름
                   {sortField === "name" &&
@@ -1287,11 +1285,10 @@ export function CloudStorage() {
                 </button>
                 <button
                   onClick={() => handleSort("modified")}
-                  className={`col-span-4 flex items-center gap-1.5 transition-colors text-left ${
-                    sortField === "modified"
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`col-span-4 flex items-center gap-1.5 transition-colors text-left ${sortField === "modified"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   수정일
                   {sortField === "modified" &&
@@ -1303,11 +1300,10 @@ export function CloudStorage() {
                 </button>
                 <button
                   onClick={() => handleSort("size")}
-                  className={`col-span-1 flex items-center justify-end gap-1.5 transition-colors text-right ${
-                    sortField === "size"
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`col-span-1 flex items-center justify-end gap-1.5 transition-colors text-right ${sortField === "size"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   크기
                   {sortField === "size" &&
@@ -1319,7 +1315,7 @@ export function CloudStorage() {
                 </button>
               </div>
 
-              <div className="divide-y divide-border">
+              <div className="">
                 {parentFolder && (
                   <div
                     className={`${fileRowStyles} cursor-pointer hover:bg-muted/30`}
@@ -1424,11 +1420,10 @@ export function CloudStorage() {
                           handleFolderClick(file);
                         }
                       }}
-                      className={`${fileRowStyles} cursor-pointer ${
-                        selectedItems.includes(file.id)
-                          ? "bg-primary/20 border-b-border"
-                          : "hover:bg-muted/30"
-                      } ${draggedFileId === file.id ? "opacity-50" : ""}`}
+                      className={`${fileRowStyles} cursor-pointer ${selectedItems.includes(file.id)
+                        ? "bg-primary/20 border-b-border"
+                        : "hover:bg-muted/30"
+                        } ${draggedFileId === file.id ? "opacity-50" : ""}`}
                     >
                       <div className="md:hidden flex items-center gap-3">
                         <div className="flex-shrink-0 flex items-center">
@@ -1442,11 +1437,10 @@ export function CloudStorage() {
                         <div className="flex-1 min-w-0 flex items-center gap-2">
                           <div
                             {...getFileDragHandlers(file)}
-                            className={`flex items-center gap-2 flex-1 min-w-0 text-left transition-all ${
-                              file.type === "folder"
-                                ? getDragOverClassName(file.id, true)
-                                : ""
-                            }`}
+                            className={`flex items-center gap-2 flex-1 min-w-0 text-left transition-all ${file.type === "folder"
+                              ? getDragOverClassName(file.id, true)
+                              : ""
+                              }`}
                           >
                             {file.type === "folder" ? (
                               <Folder className="h-5 w-5 text-yellow-500 flex-shrink-0" />
@@ -1458,11 +1452,10 @@ export function CloudStorage() {
                               />
                             )}
                             <span
-                              className={`font-normal truncate leading-normal ${
-                                file.type === "folder"
-                                  ? "text-primary cursor-pointer hover:underline"
-                                  : "text-foreground"
-                              }`}
+                              className={`font-normal truncate leading-normal ${file.type === "folder"
+                                ? "text-primary cursor-pointer hover:underline"
+                                : "text-foreground"
+                                }`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (file.type === "folder") {
@@ -1502,11 +1495,10 @@ export function CloudStorage() {
                         <div className="col-span-6 flex items-center gap-3 min-w-0">
                           <div
                             {...getFileDragHandlers(file)}
-                            className={`flex items-center gap-3 min-w-0 flex-1 text-left transition-all ${
-                              file.type === "folder"
-                                ? getDragOverClassName(file.id, false)
-                                : ""
-                            }`}
+                            className={`flex items-center gap-3 min-w-0 flex-1 text-left transition-all ${file.type === "folder"
+                              ? getDragOverClassName(file.id, false)
+                              : ""
+                              }`}
                           >
                             {file.type === "folder" ? (
                               <Folder className="h-5 w-5 text-yellow-500 flex-shrink-0" />
@@ -1518,11 +1510,10 @@ export function CloudStorage() {
                               />
                             )}
                             <span
-                              className={`font-normal truncate leading-normal ${
-                                file.type === "folder"
-                                  ? "text-primary cursor-pointer hover:underline hover:text-primary"
-                                  : "text-foreground"
-                              }`}
+                              className={`font-normal truncate leading-normal ${file.type === "folder"
+                                ? "text-primary cursor-pointer hover:underline hover:text-primary"
+                                : "text-foreground"
+                                }`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (file.type === "folder") {
@@ -1635,11 +1626,10 @@ export function CloudStorage() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4 md:p-6">
                   {parentFolder && (
                     <div
-                      className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-all cursor-pointer ${
-                        dragOverFolderId === parentFolder.id
-                          ? "ring-2 ring-primary bg-primary/10"
-                          : ""
-                      }`}
+                      className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-all cursor-pointer ${dragOverFolderId === parentFolder.id
+                        ? "ring-2 ring-primary bg-primary/10"
+                        : ""
+                        }`}
                       onDragOver={(e) =>
                         handleFolderDragOver(e, parentFolder.id)
                       }
@@ -1676,15 +1666,13 @@ export function CloudStorage() {
                       onDrop={(e) =>
                         file.type === "folder" && handleFolderDrop(e, file.id)
                       }
-                      className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card transition-all cursor-pointer ${
-                        selectedItems.includes(file.id)
-                          ? "bg-primary/20 border-primary/50"
-                          : "hover:bg-muted/30 hover:border-primary/30"
-                      } ${draggedFileId === file.id ? "opacity-50" : ""} ${
-                        file.type === "folder" && dragOverFolderId === file.id
+                      className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card transition-all cursor-pointer ${selectedItems.includes(file.id)
+                        ? "bg-primary/20 border-primary/50"
+                        : "hover:bg-muted/30 hover:border-primary/30"
+                        } ${draggedFileId === file.id ? "opacity-50" : ""} ${file.type === "folder" && dragOverFolderId === file.id
                           ? "ring-2 ring-primary border-primary bg-primary/20 shadow-sm"
                           : ""
-                      }`}
+                        }`}
                       onClick={() => toggleSelectItem(file.id)}
                       onDoubleClick={() =>
                         file.type === "folder" && handleFolderClick(file)
@@ -1719,11 +1707,10 @@ export function CloudStorage() {
                       </div>
                       <div className="w-full text-center">
                         <p
-                          className={`text-xs font-normal truncate ${
-                            file.type === "folder"
-                              ? "text-primary cursor-pointer hover:underline"
-                              : "text-foreground"
-                          }`}
+                          className={`text-xs font-normal truncate ${file.type === "folder"
+                            ? "text-primary cursor-pointer hover:underline"
+                            : "text-foreground"
+                            }`}
                           title={file.name}
                           onClick={(e) => {
                             e.stopPropagation();
