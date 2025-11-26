@@ -13,7 +13,7 @@ import {
     Settings,
     HelpCircle,
 } from "lucide-react";
-import { ViewMode } from "@/hooks/use-drive";
+import { ViewMode } from "@/types/drive";
 
 interface HeaderProps {
     searchQuery: string;

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Loader2, Image as ImageIcon } from "lucide-react";
-import { FileItem } from "@/hooks/use-drive";
+import { FileItem } from "@/types/drive";
 
 interface ThumbnailImageProps {
     file: FileItem;

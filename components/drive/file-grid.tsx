@@ -1,7 +1,7 @@
 "use client";
 
-import { FileItem } from "@/hooks/use-drive";
-import { FileItemComponent } from "./file-item";
+import { FileItem } from "@/types/drive";
+import { FileItem as FileItemComponent } from "./file-item";
 
 interface FileGridProps {
     files: FileItem[];
@@ -13,6 +13,8 @@ interface FileGridProps {
     onDragLeave: () => void;
     onDrop: (e: React.DragEvent, id: number | null) => void;
     dragOverFolderId: number | null;
+    draggedFileId: number | null;
+    onDragEnd: () => void;
 }
 
 export function FileGrid({
@@ -25,6 +27,8 @@ export function FileGrid({
     onDragLeave,
     onDrop,
     dragOverFolderId,
+    draggedFileId,
+    onDragEnd,
 }: FileGridProps) {
     return (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 p-4">
@@ -33,14 +37,16 @@ export function FileGrid({
                     key={file.id}
                     file={file}
                     viewMode="grid"
-                    isSelected={selectedItems.includes(file.id)}
-                    onSelect={onSelect}
+                    selected={selectedItems.includes(file.id)}
+                    onSelect={() => onSelect(file.id)}
                     onNavigate={onNavigate}
-                    onDragStart={onDragStart}
-                    onDragOver={onDragOver}
+                    onDragStart={(e, f) => onDragStart(e, f.id, f.type)}
+                    onDragOver={(e) => onDragOver(e, file.id)}
                     onDragLeave={onDragLeave}
-                    onDrop={onDrop}
-                    dragOverFolderId={dragOverFolderId}
+                    onDrop={(e) => onDrop(e, file.id)}
+                    dragOver={dragOverFolderId === file.id}
+                    isDragging={draggedFileId === file.id}
+                    onDragEnd={onDragEnd}
                 />
             ))}
             {files.length === 0 && (
