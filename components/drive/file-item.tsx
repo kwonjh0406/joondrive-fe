@@ -19,6 +19,7 @@ interface FileItemProps {
     selected: boolean;
     isDragging: boolean;
     dragOver: boolean;
+    isLast?: boolean;
     onSelect: () => void;
     onNavigate: (folder: FileItemType) => void;
     onDragStart: (e: React.DragEvent, file: FileItemType) => void;
@@ -34,6 +35,7 @@ export function FileItem({
     selected,
     isDragging,
     dragOver,
+    isLast = false,
     onSelect,
     onNavigate,
     onDragStart,
@@ -113,7 +115,7 @@ export function FileItem({
                     onNavigate(file);
                 }
             }}
-            className={`${fileRowStyles} cursor-pointer ${selected ? "bg-primary/10" : "hover:bg-muted/30"
+            className={`${fileRowStyles} ${isLast ? "" : "border-b border-border"} cursor-pointer ${selected ? "bg-primary/10" : "hover:bg-muted/30"
                 } ${isDragging ? "opacity-50" : ""}`}
         >
             <div className="md:hidden flex items-center gap-3">

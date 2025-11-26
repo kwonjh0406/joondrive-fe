@@ -244,6 +244,7 @@ export function FileList({
                                 selected={selectedItems.includes(file.id)}
                                 isDragging={draggedFileId === file.id}
                                 dragOver={dragOverFolderId === file.id}
+                                isLast={index === files.length - 1}
                                 onSelect={() => onSelect(file.id)}
                                 onNavigate={onNavigate}
                                 onDragStart={onDragStart}

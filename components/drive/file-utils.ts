@@ -109,4 +109,4 @@ export const checkboxStyles =
     "h-4 w-4 rounded-[4px] border border-input data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground data-[state=checked]:border-primary transition-all hover:bg-muted/50";
 
 export const fileRowStyles =
-    "px-4 md:px-6 py-3 transition-colors";
+    "px-4 md:px-6 py-3 transition-colors border-b border-border";
