@@ -1637,7 +1637,7 @@ export function CloudStorage() {
                       onDrop={(e) => handleFolderDrop(e, parentFolder.id)}
                       onClick={navigateToParent}
                     >
-                      <div className="relative w-full aspect-square mb-3 flex items-center justify-center bg-muted/50 rounded-lg overflow-hidden">
+                      <div className="relative w-full aspect-square mb-3 flex items-center justify-center rounded-lg overflow-hidden">
                         <Folder className="h-12 w-12 text-yellow-500" />
                       </div>
                       <div className="w-full text-center">
@@ -1667,8 +1667,8 @@ export function CloudStorage() {
                         file.type === "folder" && handleFolderDrop(e, file.id)
                       }
                       className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card transition-all cursor-pointer ${selectedItems.includes(file.id)
-                        ? "bg-primary/10 border-primary/50"
-                        : "hover:bg-muted/30 hover:border-primary/30"
+                        ? "bg-primary/10"
+                        : "hover:bg-muted/30"
                         } ${draggedFileId === file.id ? "opacity-50" : ""} ${file.type === "folder" && dragOverFolderId === file.id
                           ? "ring-2 ring-primary border-primary bg-primary/20 shadow-sm"
                           : ""
@@ -1678,7 +1678,7 @@ export function CloudStorage() {
                         file.type === "folder" && handleFolderClick(file)
                       }
                     >
-                      <div className="relative w-full aspect-square mb-3 flex items-center justify-center bg-muted/50 rounded-lg overflow-hidden">
+                      <div className="relative w-full aspect-square mb-3 flex items-center justify-center rounded-lg overflow-hidden">
                         {file.type === "folder" ? (
                           <Folder className="h-12 w-12 text-yellow-500" />
                         ) : isImageFile(file) ? (
