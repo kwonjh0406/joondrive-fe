@@ -1243,7 +1243,7 @@ export function CloudStorage() {
                     }
                     onCheckedChange={selectAll}
                     disabled={currentFiles.length === 0}
-                    className={checkboxStyles}
+                    className={`${checkboxStyles} bg-background/95 backdrop-blur-sm hover:scale-110`}
                   />
                   <span className="text-sm text-foreground">전체 선택</span>
                 </div>
@@ -1264,7 +1264,7 @@ export function CloudStorage() {
                     }
                     onCheckedChange={selectAll}
                     disabled={currentFiles.length === 0}
-                    className={checkboxStyles}
+                    className={`${checkboxStyles} bg-background/95 backdrop-blur-sm hover:scale-110`}
                     title="전체 선택"
                   />
                 </div>
@@ -1431,7 +1431,7 @@ export function CloudStorage() {
                             checked={selectedItems.includes(file.id)}
                             onCheckedChange={() => toggleSelectItem(file.id)}
                             onClick={(e) => e.stopPropagation()}
-                            className={`${checkboxStyles} bg-background/95 backdrop-blur-sm shadow-md hover:scale-110`}
+                            className={`${checkboxStyles} bg-background/95 backdrop-blur-sm hover:scale-110`}
                           />
                         </div>
                         <div className="flex-1 min-w-0 flex items-center gap-2">
@@ -1489,7 +1489,7 @@ export function CloudStorage() {
                             checked={selectedItems.includes(file.id)}
                             onCheckedChange={() => toggleSelectItem(file.id)}
                             onClick={(e) => e.stopPropagation()}
-                            className={`${checkboxStyles} bg-background/95 backdrop-blur-sm shadow-md hover:scale-110`}
+                            className={`${checkboxStyles} bg-background/95 backdrop-blur-sm hover:scale-110`}
                           />
                         </div>
                         <div className="col-span-6 flex items-center gap-3 min-w-0">
@@ -1558,7 +1558,7 @@ export function CloudStorage() {
                     }
                     onCheckedChange={selectAll}
                     disabled={currentFiles.length === 0}
-                    className={checkboxStyles}
+                    className={`${checkboxStyles} bg-background/95 backdrop-blur-sm hover:scale-110`}
                   />
                   <span className="text-sm text-foreground">전체 선택</span>
                 </div>
@@ -1579,7 +1579,7 @@ export function CloudStorage() {
                     }
                     onCheckedChange={selectAll}
                     disabled={currentFiles.length === 0}
-                    className={checkboxStyles}
+                    className={`${checkboxStyles} bg-background/95 backdrop-blur-sm hover:scale-110`}
                     title="전체 선택"
                   />
                 </div>
