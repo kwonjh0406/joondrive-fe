@@ -64,8 +64,8 @@ export function FileItem({
         return (
             <div
                 {...commonDragProps}
-                className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-all cursor-pointer ${selected ? "ring-2 ring-primary bg-primary/5" : ""
-                    } ${dragOver ? "ring-2 ring-primary bg-primary/10" : ""} ${isDragging ? "opacity-50" : ""
+                className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-all cursor-pointer ${selected ? "bg-primary/5" : ""
+                    } ${dragOver ? "bg-primary/10" : ""} ${isDragging ? "opacity-50" : ""
                     }`}
                 onClick={onSelect}
                 onDoubleClick={(e) => {
@@ -83,7 +83,7 @@ export function FileItem({
                         className={checkboxStyles}
                     />
                 </div>
-                <div className="relative w-full aspect-square mb-3 flex items-center justify-center bg-muted/50 rounded-lg overflow-hidden">
+                <div className="relative w-full aspect-square mb-3 flex items-center justify-center rounded-lg overflow-hidden">
                     {file.type === "folder" ? (
                         <Folder className="h-12 w-12 text-yellow-500" />
                     ) : isImageFile(file) ? (

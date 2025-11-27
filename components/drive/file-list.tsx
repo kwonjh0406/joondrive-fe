@@ -343,7 +343,7 @@ export function FileList({
                     {parentFolder && (
                         <div
                             className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card hover:bg-muted/30 transition-all cursor-pointer ${dragOverFolderId === parentFolder.id
-                                ? "ring-2 ring-primary bg-primary/10"
+                                ? "bg-primary/10"
                                 : ""
                                 }`}
                             onDragOver={(e) => onFolderDragOver(e, parentFolder.id)}
@@ -351,7 +351,7 @@ export function FileList({
                             onDrop={(e) => onFolderDrop(e, parentFolder.id)}
                             onClick={onNavigateParent}
                         >
-                            <div className="relative w-full aspect-square mb-3 flex items-center justify-center bg-muted/50 rounded-lg overflow-hidden">
+                            <div className="relative w-full aspect-square mb-3 flex items-center justify-center rounded-lg overflow-hidden">
                                 <Folder className="h-12 w-12 text-yellow-500" />
                             </div>
                             <div className="w-full text-center">
