@@ -1125,15 +1125,15 @@ export function CloudStorage() {
               <Button
                 variant="secondary"
                 onClick={handleDownload}
-                className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-sm"
+                className="gap-2 bg-blue-500 hover:bg-blue-600 text-white border-0 shadow-sm"
               >
                 <Download className="h-4 w-4" />
                 <span className="hidden sm:inline">다운로드</span>
               </Button>
               <Button
-                variant="destructive"
+                variant="secondary"
                 onClick={handleDelete}
-                className="gap-2 shadow-sm"
+                className="gap-2 bg-red-500 hover:bg-red-600 text-white border-0 shadow-sm"
               >
                 <Trash2 className="h-4 w-4" />
                 <span className="hidden sm:inline">삭제</span>
@@ -1158,7 +1158,7 @@ export function CloudStorage() {
               <Button
                 variant="secondary"
                 onClick={handleCreateFolder}
-                className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-0 shadow-sm"
+                className="gap-2 bg-emerald-500 hover:bg-emerald-600 text-white border-0 shadow-sm"
               >
                 <Plus className="h-4 w-4" />
                 <span className="hidden sm:inline">새 폴더</span>
@@ -1421,7 +1421,7 @@ export function CloudStorage() {
                         }
                       }}
                       className={`${fileRowStyles} cursor-pointer ${selectedItems.includes(file.id)
-                        ? "bg-primary/20 border-b-border"
+                        ? "bg-primary/10 border-b-border"
                         : "hover:bg-muted/30"
                         } ${draggedFileId === file.id ? "opacity-50" : ""}`}
                     >
@@ -1667,7 +1667,7 @@ export function CloudStorage() {
                         file.type === "folder" && handleFolderDrop(e, file.id)
                       }
                       className={`group relative flex flex-col items-center p-4 rounded-lg border border-border bg-card transition-all cursor-pointer ${selectedItems.includes(file.id)
-                        ? "bg-primary/20 border-primary/50"
+                        ? "bg-primary/10 border-primary/50"
                         : "hover:bg-muted/30 hover:border-primary/30"
                         } ${draggedFileId === file.id ? "opacity-50" : ""} ${file.type === "folder" && dragOverFolderId === file.id
                           ? "ring-2 ring-primary border-primary bg-primary/20 shadow-sm"
