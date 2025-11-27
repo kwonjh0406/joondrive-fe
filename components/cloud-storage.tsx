@@ -853,7 +853,7 @@ export function CloudStorage() {
   };
 
   const checkboxStyles =
-    "h-5 w-5 rounded-[4px] border border-gray-400 dark:border-gray-500 data-[state=checked]:bg-primary data-[state=checked]:border-primary/70 transition-all hover:border-primary/70 hover:bg-primary/5";
+    "h-5 w-5 rounded-[4px] border border-input data-[state=checked]:bg-primary data-[state=checked]:border-primary/70 transition-all hover:border-primary/70 hover:bg-primary/5";
   const fileRowStyles =
     "px-4 md:px-6 py-3 transition-colors border-b border-border last:border-b-0";
 
@@ -1431,7 +1431,7 @@ export function CloudStorage() {
                             checked={selectedItems.includes(file.id)}
                             onCheckedChange={() => toggleSelectItem(file.id)}
                             onClick={(e) => e.stopPropagation()}
-                            className={checkboxStyles}
+                            className={`${checkboxStyles} bg-background/95 backdrop-blur-sm shadow-md hover:scale-110`}
                           />
                         </div>
                         <div className="flex-1 min-w-0 flex items-center gap-2">
@@ -1489,7 +1489,7 @@ export function CloudStorage() {
                             checked={selectedItems.includes(file.id)}
                             onCheckedChange={() => toggleSelectItem(file.id)}
                             onClick={(e) => e.stopPropagation()}
-                            className={checkboxStyles}
+                            className={`${checkboxStyles} bg-background/95 backdrop-blur-sm shadow-md hover:scale-110`}
                           />
                         </div>
                         <div className="col-span-6 flex items-center gap-3 min-w-0">
