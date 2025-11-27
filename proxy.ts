@@ -38,5 +38,5 @@ export async function proxy(req: NextRequest) {
  * 인증 검증이 적용될 경로: / (홈), /account-settings (계정 설정)
  */
 export const config = {
-  matcher: ["/account-settings"],
+  matcher: ["/", "/account-settings"],
 };
