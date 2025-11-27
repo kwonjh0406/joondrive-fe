@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
+import { validatePassword, PASSWORD_MESSAGES } from "@/lib/validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,8 +38,8 @@ export function ChangePasswordForm() {
 
     if (!newPassword) {
       newErrors.newPassword = "새 비밀번호를 입력해주세요.";
-    } else if (newPassword.length < 8) {
-      newErrors.newPassword = "비밀번호는 8자 이상이어야 합니다.";
+    } else if (!validatePassword(newPassword)) {
+      newErrors.newPassword = PASSWORD_MESSAGES.INVALID_PASSWORD;
     }
 
     if (!confirmPassword) {
@@ -117,9 +118,8 @@ export function ChangePasswordForm() {
                     setErrors({ ...errors, currentPassword: "" });
                   }
                 }}
-                className={`pr-10 bg-input border-border focus:ring-primary h-11 ${
-                  errors.currentPassword ? "border-destructive" : ""
-                }`}
+                className={`pr-10 bg-input border-border focus:ring-primary h-11 ${errors.currentPassword ? "border-destructive" : ""
+                  }`}
                 placeholder="현재 비밀번호 입력"
                 autoComplete="current-password"
               />
@@ -160,9 +160,8 @@ export function ChangePasswordForm() {
                     setErrors({ ...errors, newPassword: "" });
                   }
                 }}
-                className={`pr-10 bg-input border-border focus:ring-primary h-11 ${
-                  errors.newPassword ? "border-destructive" : ""
-                }`}
+                className={`pr-10 bg-input border-border focus:ring-primary h-11 ${errors.newPassword ? "border-destructive" : ""
+                  }`}
                 placeholder="새 비밀번호 입력 (8자 이상)"
                 autoComplete="new-password"
               />
@@ -201,9 +200,8 @@ export function ChangePasswordForm() {
                     setErrors({ ...errors, confirmPassword: "" });
                   }
                 }}
-                className={`pr-10 bg-input border-border focus:ring-primary h-11 ${
-                  errors.confirmPassword ? "border-destructive" : ""
-                }`}
+                className={`pr-10 bg-input border-border focus:ring-primary h-11 ${errors.confirmPassword ? "border-destructive" : ""
+                  }`}
                 placeholder="새 비밀번호 재입력"
                 autoComplete="new-password"
               />

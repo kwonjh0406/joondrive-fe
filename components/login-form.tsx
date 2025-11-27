@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { toast } from "sonner";
 import Link from "next/link";
+import { validatePassword } from "@/lib/validation";
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`;
 
@@ -25,15 +26,6 @@ const MESSAGES = {
 
 const validateEmail = (email: string) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-const validatePassword = (password: string) => {
-  if (password.length < 8) return false;
-  return (
-    /\d/.test(password) &&
-    /[a-zA-Z]/.test(password) &&
-    /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
-  );
-};
 
 const validateForm = (email: string, password: string): string | null => {
   if (!email || !password) return MESSAGES.EMPTY_FIELDS;

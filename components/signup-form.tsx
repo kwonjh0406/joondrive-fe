@@ -4,6 +4,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/axios";
+import { validatePassword, PASSWORD_MESSAGES } from "@/lib/validation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -57,8 +58,8 @@ export function SignupForm() {
       return;
     }
 
-    if (password.length < 8) {
-      toast.error("비밀번호는 8자 이상이어야 합니다.");
+    if (!validatePassword(password)) {
+      toast.error(PASSWORD_MESSAGES.INVALID_PASSWORD);
       return;
     }
 
