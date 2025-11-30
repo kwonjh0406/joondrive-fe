@@ -293,7 +293,7 @@ export function FileList({
 
             {/* Desktop Header */}
             <div className="hidden md:grid md:grid-cols-12 gap-4 px-6 py-3 bg-muted/30 border-b border-border text-xs font-medium text-foreground/70 items-center">
-                <div className="col-span-1 flex items-center justify-center">
+                <div className="col-span-1 flex items-center gap-2">
                     <Checkbox
                         checked={files.length > 0 && selectedItems.length === files.length}
                         onCheckedChange={(checked) => onSelectAll(!!checked)}
@@ -301,6 +301,7 @@ export function FileList({
                         className={checkboxStyles}
                         title="전체 선택"
                     />
+                    <span className="text-foreground whitespace-nowrap">전체 선택</span>
                 </div>
             </div>
 

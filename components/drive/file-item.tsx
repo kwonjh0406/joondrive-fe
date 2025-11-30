@@ -162,7 +162,7 @@ export function FileItem({
                 </div>
                 <div className="flex flex-col items-end gap-0.5 text-[11px] text-muted-foreground flex-shrink-0">
                     <span>{file.modified}</span>
-                    {file.type === "file" && file.size && <span>{file.size}</span>}
+                    {file.type === "file" && file.size && <span className="whitespace-nowrap">{file.size}</span>}
                 </div>
             </div>
 
