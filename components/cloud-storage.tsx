@@ -1327,7 +1327,7 @@ export function CloudStorage() {
                 {parentFolder && (
                   <div
                     className={`${fileRowStyles} cursor-pointer hover:bg-muted/30`}
-                    onClick={navigateToParent}
+                    onDoubleClick={navigateToParent}
                     onDragOver={(e) => handleFolderDragOver(e, parentFolder.id)}
                     onDragLeave={handleFolderDragLeave}
                     onDrop={(e) => handleFolderDrop(e, parentFolder.id)}
@@ -1461,7 +1461,7 @@ export function CloudStorage() {
                             )}
                             <span
                               className={`font-normal truncate leading-normal ${file.type === "folder"
-                                ? "text-primary cursor-pointer hover:underline"
+                                ? "text-primary cursor-pointer"
                                 : "text-foreground"
                                 }`}
                               onClick={(e) => {
@@ -1515,7 +1515,7 @@ export function CloudStorage() {
                             )}
                             <span
                               className={`font-normal truncate leading-normal ${file.type === "folder"
-                                ? "text-primary cursor-pointer hover:underline hover:text-primary"
+                                ? "text-primary cursor-pointer hover:text-primary"
                                 : "text-foreground"
                                 }`}
                               onClick={(e) => {
@@ -1635,7 +1635,7 @@ export function CloudStorage() {
                       }
                       onDragLeave={handleFolderDragLeave}
                       onDrop={(e) => handleFolderDrop(e, parentFolder.id)}
-                      onClick={navigateToParent}
+                      onDoubleClick={navigateToParent}
                     >
                       <div className="relative w-full aspect-square mb-3 flex items-center justify-center rounded-lg overflow-hidden">
                         <Folder className="h-12 w-12 text-yellow-500" />
@@ -1708,7 +1708,7 @@ export function CloudStorage() {
                       <div className="w-full text-center">
                         <p
                           className={`text-xs font-normal truncate ${file.type === "folder"
-                            ? "text-primary cursor-pointer hover:underline"
+                            ? "text-primary cursor-pointer"
                             : "text-foreground"
                             }`}
                           title={file.name}
