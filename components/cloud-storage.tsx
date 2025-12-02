@@ -35,6 +35,7 @@ import {
   Inbox,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 type ViewMode = "list" | "grid";
 type SortField = "name" | "modified" | "size";
@@ -1018,16 +1019,23 @@ export function CloudStorage() {
       <header className="sticky top-0 z-10 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
         <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4 md:px-6">
           <div className="flex items-center gap-3 md:gap-4 flex-1 max-w-2xl min-w-0">
-            <button
-              onClick={() => {
-                setCurrentParentId(null);
-                setBreadcrumbPath([{ id: null, name: "내 드라이브" }]);
-                setSelectedItems([]);
-              }}
-              className="text-xl font-bold text-foreground hidden md:block whitespace-nowrap hover:text-primary transition-colors cursor-pointer"
-            >
-              드라이브
-            </button>
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => {
+              setCurrentParentId(null);
+              setBreadcrumbPath([{ id: null, name: "내 드라이브" }]);
+              setSelectedItems([]);
+            }}>
+              <div className="relative w-8 h-8">
+                <Image
+                  src="/icon-light-32x32.png"
+                  alt="Logo"
+                  fill
+                  className="object-contain"
+                />
+              </div>
+              <span className="text-xl font-bold text-foreground hidden md:block whitespace-nowrap hover:text-primary transition-colors">
+                드라이브
+              </span>
+            </div>
             <div className="relative flex-1 min-w-0">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground pointer-events-none" />
               <Input
