@@ -1024,7 +1024,7 @@ export function CloudStorage() {
                 setBreadcrumbPath([{ id: null, name: "내 드라이브" }]);
                 setSelectedItems([]);
               }}
-              className="text-xl font-medium text-foreground hidden md:block whitespace-nowrap hover:text-primary transition-colors cursor-pointer"
+              className="text-xl font-bold text-foreground hidden md:block whitespace-nowrap hover:text-primary transition-colors cursor-pointer"
             >
               드라이브
             </button>
@@ -1458,11 +1458,7 @@ export function CloudStorage() {
                                 }`}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (file.type === "folder") {
-                                  handleFolderClick(file);
-                                } else {
-                                  toggleSelectItem(file.id);
-                                }
+                                toggleSelectItem(file.id);
                               }}
                               onDoubleClick={(e) => {
                                 e.stopPropagation();
@@ -1516,11 +1512,7 @@ export function CloudStorage() {
                                 }`}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (file.type === "folder") {
-                                  handleFolderClick(file);
-                                } else {
-                                  toggleSelectItem(file.id);
-                                }
+                                toggleSelectItem(file.id);
                               }}
                               onDoubleClick={(e) => {
                                 e.stopPropagation();
@@ -1714,6 +1706,10 @@ export function CloudStorage() {
                           title={file.name}
                           onClick={(e) => {
                             e.stopPropagation();
+                            toggleSelectItem(file.id);
+                          }}
+                          onDoubleClick={(e) => {
+                            e.stopPropagation();
                             if (file.type === "folder") {
                               handleFolderClick(file);
                             }
@@ -1734,7 +1730,7 @@ export function CloudStorage() {
             </div>
           )}
         </div>
-      </main>
-    </div>
+      </main >
+    </div >
   );
 }
