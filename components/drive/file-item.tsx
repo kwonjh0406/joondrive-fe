@@ -138,7 +138,7 @@ export function FileItem({
                         )}
                         <span
                             className={`font-normal truncate leading-normal ${file.type === "folder"
-                                ? "text-primary cursor-pointer hover:underline"
+                                ? "text-primary cursor-pointer"
                                 : "text-foreground"
                                 }`}
                             onClick={(e) => {
@@ -187,7 +187,7 @@ export function FileItem({
                         )}
                         <span
                             className={`font-normal truncate leading-normal ${file.type === "folder"
-                                ? "text-primary cursor-pointer hover:underline hover:text-primary"
+                                ? "text-primary cursor-pointer hover:text-primary"
                                 : "text-foreground"
                                 }`}
                             onClick={(e) => {

@@ -157,7 +157,7 @@ export function FileList({
                     {parentFolder && (
                         <div
                             className={`${fileRowStyles} border-b border-border cursor-pointer hover:bg-muted/30`}
-                            onClick={onNavigateParent}
+                            onDoubleClick={onNavigateParent}
                             onDragOver={(e) => onFolderDragOver(e, parentFolder.id)}
                             onDragLeave={onFolderDragLeave}
                             onDrop={(e) => onFolderDrop(e, parentFolder.id)}
@@ -351,7 +351,7 @@ export function FileList({
                             onDragOver={(e) => onFolderDragOver(e, parentFolder.id)}
                             onDragLeave={onFolderDragLeave}
                             onDrop={(e) => onFolderDrop(e, parentFolder.id)}
-                            onClick={onNavigateParent}
+                            onDoubleClick={onNavigateParent}
                         >
                             <div className="relative w-full aspect-square mb-3 flex items-center justify-center rounded-lg overflow-hidden">
                                 <Folder className="h-12 w-12 text-yellow-500" />
